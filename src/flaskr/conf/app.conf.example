@@ -1,0 +1,5 @@
+[general]
+# 允许便签最大大小
+MEMO_MAX_SIZE = 5
+# 便签保存间隔
+SAVE_SPANTIME = 3000

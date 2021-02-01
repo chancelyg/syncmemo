@@ -1,0 +1,11 @@
+.idea
+*.pyc
+config.json
+__pycache__/
+.vscode/
+conf/app.config
+src/flaskr/conf/app.conf
+tmp/
+cache/
+logs/
+.python-version

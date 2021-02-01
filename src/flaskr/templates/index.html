@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--禁用其缩放（zooming）功能-->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <!--no-cache、no-store指网页不被缓存，max-age、min-fresh生存时间，expires=0表示立即过期-->
+    <meta http-equiv="Pragma" content="no-cache,no-store" />
+    <meta http-equiv="expires" content="0" />
+
+    <title>syncMemo - 同步便签</title>
+    <link rel="shortcut icon" href="/static/img/favicon.png" />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/wangeditor@latest/dist/wangEditor.min.js"
+    ></script>
+  </head>
+
+  <body>
+    <div id="main">{{memo_content|safe}}</div>
+
+    <script type="text/javascript">
+      const E = window.wangEditor;
+      const editor = new E("#main");
+      // 或者 const editor = new E(document.getElementById('div1'))
+      editor.config.uploadImgShowBase64 = true;
+      editor.config.menus = [
+        "bold",
+        "head",
+        "link",
+        "italic",
+        "underline",
+        "image",
+      ];
+
+      editor.create();
+      editor.fullScreen();
+
+      let editorContent = editor.txt.html();
+      function save() {
+        if (editor.txt.html() == editorContent) {
+          setTimeout("save()", {{span_time}});
+          return;
+        }
+        editorContent = editor.txt.html();
+        fetch("", {
+          method: "POST",
+          body: JSON.stringify({ content: editorContent }), // data can be `string` or {object}!
+          headers: new Headers({
+            "Content-Type": "application/json",
+          }),
+        })
+          .then((res) => res.json())
+          .catch((error) => console.error("Error:", error))
+          .then((response) => {
+            if (!response.success) {
+              alert(response.message);
+            }
+          });
+        setTimeout("save()", {{span_time}});
+      }
+      save();
+    </script>
+  </body>
+</html>
