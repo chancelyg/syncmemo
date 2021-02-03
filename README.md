@@ -7,7 +7,7 @@
 - 参考Demo（也可直接使用）：[https://memo.chancel.ltd](https://memo.chancel.ltd)
 
 如何使用？
-1. 访问网站后，网站Url自动添加一个5位的随机数在网址最后面，如 https://memo.chancel.ltd/**73NSS** ，73NSS即为便签ID
+1. 访问网站后，网站Url自动添加一个5位的随机数在网址最后面，如 https://memo.chancel.ltd/73NSS ，73NSS即为便签ID
 2. 写入文字/图片，网站会自动保存
 3. 复制网站链接或记下网站链接的后5位数，在其他设备输入网址+5位随机数，即可访问刚才输入的内容
 
@@ -187,3 +187,7 @@ pip3 install flask PyYAML configparser
     ]
 }
 ```
+
+# 感谢
+编辑器来自 - [wangeditor](https://www.wangeditor.com/)
+Web框架 - [Flask](https://github.com/pallets/flask)

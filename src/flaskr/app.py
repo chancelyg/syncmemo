@@ -31,6 +31,9 @@ if os.path.exists(app_config_path) is False:
 configparser.read(app_config_path, encoding='utf-8')
 main_logger.info('配置文读取成功')
 
+if not os.path.exists('tmp'):
+    main_logger.info('创建tmp文件夹')
+    os.mkdir('tmp')
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/<memo_id>', methods=['GET', 'POST'])
@@ -47,6 +50,9 @@ def index(memo_id=None):
     main_logger.info('%s便签请求访问，请求方式%s' % (memo_id, request.method))
     memo_path = 'tmp/%s.html' % memo_id
     if request.method == 'GET':
+        if memo_id == 'help':
+            with open('HELP.html', 'r', encoding='utf8') as f:
+                return render_template('index.html', memo_content=f.read(),span_time=99999)
         if os.path.exists(memo_path):
             with open(memo_path, 'r', encoding='utf8') as f:
                 return render_template('index.html', memo_content=f.read(),span_time=configparser['general']['SAVE_SPANTIME'])
@@ -57,8 +63,6 @@ def index(memo_id=None):
         if size > int(configparser['general']['MEMO_MAX_SIZE']):
             main_logger.warn('%s便签大小超过限制(%dMb)' % (memo_id, size))
             return api_response(success=False, message='便签内容大小不能超过5Mb，保存失败')
-        if not os.path.exists('tmp'):
-            os.mkdir('tmp')
         with open(memo_path, 'w', encoding='utf8') as f:
             f.write(content)
         main_logger.info('%s便签保存成功，文件大小%dKb' % (memo_id, len(content) / 1024))

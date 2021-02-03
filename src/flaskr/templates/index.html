@@ -26,7 +26,11 @@
   </head>
 
   <body>
-    <div id="main">{{memo_content|safe}}</div>
+    <div id="main">
+      {{memo_content|safe if memo_content else '<a id="help" href="help"
+        >点击查看帮助</a
+      >'|safe}}
+    </div>
 
     <script type="text/javascript">
       const E = window.wangEditor;
@@ -69,6 +73,10 @@
         setTimeout("save()", {{span_time}});
       }
       save();
+      function removeHelp(){
+        document.getElementById('help').parentElement.removeChild(document.getElementById('help'))
+      }
+      setTimeout("removeHelp()",10000)
     </script>
   </body>
 </html>
