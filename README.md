@@ -1,15 +1,17 @@
-服务Demo：[https://memo.chancel.ltd](https://memo.chancel.ltd)
+项目效果参考：[https://memo.chancel.ltd](https://memo.chancel.ltd)
 
 # 1. SyncMemo
 
-一个多设备同步文本/图片内容的开源便签Web服务
+一个支持多设备同步文本/图片内容的开源便签Web服务
 
-- 参考Demo（也可直接使用）：[https://memo.chancel.ltd](https://memo.chancel.ltd)
+- 参考效果（也可直接使用）：[https://memo.chancel.ltd](https://memo.chancel.ltd)
 
 如何使用？
 1. 访问网站后，网站Url自动添加一个5位的随机数在网址最后面，如 https://memo.chancel.ltd/73NSS ，73NSS即为便签ID
 2. 写入文字/图片，网站会自动保存
 3. 复制网站链接或记下网站链接的后5位数，在其他设备输入网址+5位随机数，即可访问刚才输入的内容
+
+如有大批量使用要求，建议自行部署
 
 # 2. SyncMemo部署
 
@@ -158,9 +160,6 @@ pip3 install flask PyYAML configparser
 
 ``` Json
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -188,6 +187,10 @@ pip3 install flask PyYAML configparser
 }
 ```
 
-# 感谢
-编辑器来自 - [wangeditor](https://www.wangeditor.com/)
-Web框架 - [Flask](https://github.com/pallets/flask)
+# 4. 感谢
+
+项目技术依赖
+* 编辑器 - [wangeditor](https://www.wangeditor.com/)
+* Web框架 - [Flask](https://github.com/pallets/flask)
+
+感谢以上这些优秀的开源项目
