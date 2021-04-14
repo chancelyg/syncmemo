@@ -7,11 +7,10 @@
 - 参考效果（也可直接使用）：[https://memo.chancel.ltd](https://memo.chancel.ltd)
 
 如何使用？
-1. 访问网站后，网站Url自动添加一个5位的随机数在网址最后面，如 https://memo.chancel.ltd/73NSS ，73NSS即为便签ID
-2. 写入文字/图片，网站会自动保存
-3. 复制网站链接或记下网站链接的后5位数，在其他设备输入网址+5位随机数，即可访问刚才输入的内容
+* 访问本站时会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签
+* 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容
 
-如有大批量使用要求，建议自行部署
+如有大批量使用要求，建议自行部署至服务器
 
 # 2. SyncMemo部署
 
@@ -20,7 +19,7 @@
 Python版本要求>3.5，依赖以下第三方库
 
 ``` shell
-pip3 install flask PyYAML configparser
+pip3 install -r requirements.txt
 ```
 
 ## 2.2. 快速部署
@@ -32,7 +31,9 @@ pip3 install flask PyYAML configparser
 # 允许便签最大大小
 MEMO_MAX_SIZE = 5
 # 便签保存间隔
-SAVE_SPANTIME = 3000
+SAVE_SPANTIME = 5000
+# 便签ID长度
+MEMO_ID_LENGTH = 4
 ```
 
 然后运行以下命令可快速运行程序
@@ -55,7 +56,9 @@ python3 /mnt/sda/Codes/dev/syncMemo/src/main.py -p 10923 --host 0.0.0.0
 # 允许便签最大大小
 MEMO_MAX_SIZE = 5
 # 便签保存间隔
-SAVE_SPANTIME = 3000
+SAVE_SPANTIME = 5000
+# 便签ID长度
+MEMO_ID_LENGTH = 4
 ```
 
 然后安装uwsgi
@@ -72,8 +75,8 @@ module = main:app
 master = true
 processes = 2
 
-chdir = /opt/syncMemo/src/
-socket = /opt/syncMemo/uwsgi.sock
+chdir = /srv/SyncMemo/src/
+socket = /srv/SyncMemo/uwsgi.sock
 chmod-socket = 660
 vacuum = true
 
@@ -83,7 +86,7 @@ die-on-term = true
 运行uwsgi程序
 
 ``` 
-uwsgi --ini /opt/syncMemo/uwsgi.ini
+uwsgi --ini /srv/SyncMemo/uwsgi.ini
 ```
 
 如输出没有error说明uWSGI部署成功
@@ -151,7 +154,7 @@ user = apps
 Python版本>3.5，并安装以下依赖
 
 ``` Shell
-pip3 install flask PyYAML configparser
+pip3 install -r requirements.txt
 ```
 
 开发工具使用**Visual Studio Code（VSCode）**
@@ -192,5 +195,6 @@ pip3 install flask PyYAML configparser
 项目技术依赖
 * 编辑器 - [wangeditor](https://www.wangeditor.com/)
 * Web框架 - [Flask](https://github.com/pallets/flask)
+* MDUI框架 - [Mdui](https://www.mdui.org)
 
 感谢以上这些优秀的开源项目
