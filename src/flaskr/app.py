@@ -31,6 +31,10 @@ if os.path.exists('%s/conf/app.conf' % root_path) is False:
 configparser.read('%s/conf/app.conf' % root_path, encoding='utf-8')
 app.logger.info('配置文读取成功')
 
+if not os.path.exists('%s/memo' % root_path):
+    os.mkdir('%s/memo' % root_path)
+    app.logger.info('便签存放目录已创建')
+
 
 @app.route('/', methods=['GET'])
 @app.route('/<memo_id>', methods=['GET', 'POST'])
