@@ -48,7 +48,7 @@ def index(memo_id: str = None):
             break
         return redirect(url_for('index', memo_id=verify_code))
     if memo_id.upper() == 'HELP':
-        with open('HELP.html', 'r') as f:
+        with open('%s/HELP.html' % root_path, 'r') as f:
             return render_template('index.html', verify_code=memo_id.upper(), help_content=f.read())
     return render_template('index.html', verify_code=memo_id, span_time=configparser['general']['SAVE_SPANTIME'])
 
