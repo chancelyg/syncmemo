@@ -9,14 +9,14 @@ import yaml
 import logging
 
 # 读取当前运行目录绝对路径
-os.chdir(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')))
+root_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
 # Logger config
-if not os.path.exists('logs'):
-    os.mkdir('logs')
+if not os.path.exists('%s/logs' % root_path):
+    os.mkdir('%s/logs' % root_path)
 handler = RotatingFileHandler("logs/app.log", maxBytes=1024000, backupCount=10)
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(module)s - %(threadName)s - %(message)s")
 handler.setFormatter(formatter)
@@ -25,10 +25,10 @@ app.logger.addHandler(handler)
 app.logger.info('启动程序')
 
 configparser = ConfigParser()
-if os.path.exists('conf/app.conf') is False:
+if os.path.exists('%s/conf/app.conf' % root_path) is False:
     app.logger.error("配置文件app.conf不存在！请检查配置文件")
     sys.exit()
-configparser.read('conf/app.conf', encoding='utf-8')
+configparser.read('%s/conf/app.conf' % root_path, encoding='utf-8')
 app.logger.info('配置文读取成功')
 
 
