@@ -38,7 +38,7 @@ def index(memo_id: str = None):
     if not memo_id:
         verify_code = build_verify_code(length=int(configparser['general']['MEMO_ID_LENGTH']), just_uppercase=True)
         while True:
-            if os.path.exists('memo/%s.json' % verify_code):
+            if os.path.exists('%s/memo/%s.json' % (root_path, verify_code)):
                 verify_code = build_verify_code(length=(configparser['general']['MEMO_ID_LENGTH']), just_uppercase=True)
                 continue
             break
@@ -54,7 +54,7 @@ def memo():
     if request.method == 'GET':
         if not request.args.get('memoID'):
             return api_response(success=False, message='参数不正确')
-        memo_path = os.path.join('memo/', request.args.get('memoID').upper() + '.html')
+        memo_path = os.path.join('%s/memo/' % root_path, request.args.get('memoID').upper() + '.html')
         if not os.path.exists(memo_path):
             init_str = '<blockquote><p><font size="2" style="color: rgb(139, 170, 74);">便签ID -&nbsp;</font><b style=""><font size="3" style="" color="#c24f4a">%s</font></b></p><p><font size="2" color="#8baa4a">在另外一个设备访问本网站，输入相同的便签ID即可查看/编辑同一个便签内容</font></p></blockquote><hr/><p><br/></p>' % request.args.get(
                 'memoID').upper()
@@ -70,7 +70,7 @@ def memo():
         if size > int(configparser['general']['MEMO_MAX_SIZE']):
             app.logger.warn('%s便签大小超过限制(%dMb)' % (request.json.get('memoID').upper(), size))
             return api_response(success=False, message='便签内容大小不能超过%sMb，保存失败' % configparser['general']['MEMO_MAX_SIZE'])
-        memo_path = os.path.join('memo/', request.json.get('memoID').upper() + '.html')
+        memo_path = os.path.join('%s/memo/' % root_path, request.json.get('memoID').upper() + '.html')
         with open(memo_path, 'w', encoding='utf8') as f:
             f.write(content)
         app.logger.info('%s便签保存成功，文件大小%dKb' % (request.json.get('memoID').upper(), len(content) / 1024))
