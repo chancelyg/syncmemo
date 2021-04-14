@@ -9,3 +9,5 @@ tmp/
 cache/
 logs/
 .python-version
+.env
+memo/
