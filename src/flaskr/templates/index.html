@@ -52,24 +52,37 @@
       'history': false,
       'modal': true
     });
+    function confirmClick() {
+      let memoID = document.getElementById('memoID').value == "" ? "{{verify_code}}" : document.getElementById('memoID').value;
+      fetch("/rest/api/v1/memo?memoID=" + memoID)
+        .then((res) => res.json())
+        .catch((error) => console.error("Error:", error))
+        .then((response) => {
+          if (!response.success) {
+            mdui.snackbar(response.message)
+            inst.open();
+            return
+          }
+          editor.fullScreen();
+          editor.txt.html(response.data)
+          var state = {title:'',url:window.location.href.split("?")[0]};
+          history.pushState(state,'',memoID);
+        });
+    }
     window.onload = function () {
       inst.open();
+      let memoIDInput = document.getElementById('memoID');
+      let textValue = memoIDInput.value;
+      memoIDInput.focus();
+      memoIDInput.value = "";
+      memoIDInput.value = textValue
       let dialog = document.getElementById('memoDialog');
-      dialog.addEventListener('confirm.mdui.dialog', function () {
-        let memoID = document.getElementById('memoID').value == "" ? "{{verify_code}}" : document.getElementById('memoID').value;
-        fetch("/rest/api/v1/memo?memoID=" + memoID)
-          .then((res) => res.json())
-          .catch((error) => console.error("Error:", error))
-          .then((response) => {
-            if (!response.success) {
-              mdui.snackbar(response.message)
-              inst.open();
-              return
-            }
-            editor.fullScreen();
-            editor.txt.html(response.data)
-          });
-      });
+      dialog.addEventListener('confirm.mdui.dialog',confirmClick );
+      memoIDInput.onkeypress = function(event){
+        if(event.which == 13){
+          confirmClick()
+        }
+      }
     }
     // 或者 const editor = new E(document.getElementById('div1'))
     editor.config.uploadImgShowBase64 = true;
@@ -98,11 +111,10 @@
     editor.config.zIndex = 1
     editor.create();
 
-
     let editorContent = editor.txt.html();
     function save() {
+      setTimeout("save()", "{{ span_time }}");
       if (editor.txt.html() == editorContent) {
-        setTimeout("save()", "{{ span_time }}");
         return;
       }
       editorContent = editor.txt.html();
@@ -121,7 +133,7 @@
           }
         })
     }
-    setTimeout("save()", "{{ span_time }}");
+    save();
   </script>
   {% endif %}
 </body>
