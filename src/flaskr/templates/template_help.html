@@ -1,0 +1,44 @@
+{% extends "template_base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/mdui.min.css" />
+<script src="/static/js/mdui.min.js"></script>
+{% endblock %}
+{% block body %}
+<div class="mdui-typo mdui-container">
+    <h1>用途</h1>
+    <p>您是否遇到过手机需要向电脑发送某些文字/图片内容？这种情况多半使用微信/QQ之类的软件来实现这个功能</p>
+    <P>但对于没有微信/QQ的电脑或者无法安装QQ微信的设备，这个方法就不太好用，安装QQ/微信麻烦不说，在公共电脑的登录微信/QQ显然有安全问题</P>
+    <p>此时，您就可以使用手机访问本站并编辑便签内容，在另外一台设备访问相同的便签，在不同设备之间共享数据</p>
+
+    <h1>使用帮助</h1>
+    <p>使用前提：首先请记住本站网址 <strong>memo.chancel.ltd</strong></p>
+    <p>使用步骤
+    <p>
+    <ol>
+        <li>访问本站时，会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签</li>
+        <li>编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容</li>
+    </ol>
+    <h1>声明</h1>
+    使用者烦请遵守以下规则
+    <ol>
+        <li>本站对于所有便签内容不做长时间保存保障，请勿存储重要资料，本站本质上是提供信息传输而不是信息保存</li>
+        <li>本站未对安全性做过多保障，请勿传递帐号/密码等重要资料</li>
+        <li>单便签最大大小不超过5Mb，本站处于福利分享，如有大批量使用请求，烦请告知本站作者</li>
+        <li>本站程序基于Python+Flask开发，项目是开源的，欢迎Clone/Fork/Star：&nbsp;<a target="_blank"
+                href="https://github.com/chancelyg/SyncMemo">https://github.com/chancelyg/SyncMemo</a></li>
+    </ol>
+
+    <p>感谢：<a href="https://getnote.cf/" target="_blank">https://getnote.cf/</a>，本站实质上是该网站的复刻板<br></p>
+
+
+    <h1>关于</h1>
+    <p>关于本站的更多信息，可以访问<a href="https://www.chancel.ltd/articles/69"
+            target="_blank">https://www.chancel.ltd/articles/69</a>
+    </p>
+    <P><small>作者：Chancel.Yang</small>
+    <p>
+    <P><small><a href="https//:www.chancel.ltd">博客：https//:www.chancel.ltd</a></small>
+    <p>
+    <p></p>
+</div>
+{% endblock %}

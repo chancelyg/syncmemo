@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify
+from flask import Flask, request, render_template, redirect, url_for, jsonify, g
 from .utils import build_verify_code, api_response
 from configparser import ConfigParser
 from logging import config
@@ -37,23 +37,30 @@ if not os.path.exists('%s/memo' % root_path):
 
 
 @app.route('/', methods=['GET'])
-@app.route('/<memo_id>', methods=['GET', 'POST'])
-def index(memo_id: str = None):
-    if not memo_id:
-        verify_code = build_verify_code(length=int(configparser['general']['MEMO_ID_LENGTH']), just_uppercase=True)
-        while True:
-            if os.path.exists('%s/memo/%s.json' % (root_path, verify_code)):
-                verify_code = build_verify_code(length=(configparser['general']['MEMO_ID_LENGTH']), just_uppercase=True)
-                continue
-            break
-        return redirect(url_for('index', memo_id=verify_code))
-    if memo_id.upper() == 'HELP':
-        with open('%s/HELP.html' % root_path, 'r') as f:
-            return render_template('index.html', verify_code=memo_id.upper(), help_content=f.read())
-    return render_template('index.html', verify_code=memo_id, span_time=configparser['general']['SAVE_SPANTIME'])
+def index():
+    verify_code = build_verify_code(length=int(configparser['general']['MEMO_ID_LENGTH']), just_uppercase=True)
+    while True:
+        if os.path.exists('%s/memo/%s.json' % (root_path, verify_code)):
+            verify_code = build_verify_code(length=(configparser['general']['MEMO_ID_LENGTH']), just_uppercase=True)
+            continue
+        return render_template('template_index.html', verify_code=verify_code)
 
 
-@app.route('/rest/api/v1/memo', methods=['GET', 'POST'])
+@app.route('/<memo_id>', methods=['GET'])
+def memo_id(memo_id: str):
+    if memo_id == 'help':
+        return render_template('template_help.html')
+    memo_path = os.path.join('%s/memo/' % root_path, memo_id.upper() + '.html')
+    if not os.path.exists(memo_path):
+            init_str = '<blockquote><p><font size="2" style="color: rgb(139, 170, 74);">便签ID -&nbsp;</font><b style=""><font size="3" style="" color="#c24f4a">%s</font></b></p><p><font size="2" color="#8baa4a">在另外一个设备访问本网站，输入相同的便签ID即可查看/编辑同一个便签内容</font></p></blockquote><hr/><p><br/></p>' % memo_id.upper()
+            with open(memo_path, 'w', encoding='utf8') as f:
+                f.write(init_str)
+            app.logger.info('%s便签创建' % memo_path)
+    with open(memo_path, 'r', encoding='utf8') as f:
+        return render_template('template_memo.html', memo_id=memo_id, span_time=configparser['general']['SAVE_SPANTIME'],memo_content=f.read())
+
+
+@app.route('/rest/api/v1/memo', methods=['POST'])
 def memo():
     if request.method == 'GET':
         if not request.args.get('memoID'):

@@ -1,0 +1,68 @@
+{% extends "template_base.html" %}
+
+
+{% block head %}
+<script src="/static/js/wangEditor.min.js"></script>
+{% endblock %}
+
+
+{% block body %}
+<div id="wEditor">
+    {{memo_content | safe}}
+</div>
+<script type="text/javascript">
+    const E = window.wangEditor;
+    const editor = new E("#wEditor");
+    // 或者 const editor = new E(document.getElementById('div1'))
+    editor.config.uploadImgShowBase64 = true;
+    editor.config.menus = [
+        'head',
+        'bold',
+        'fontSize',
+        'fontName',
+        'italic',
+        'underline',
+        'strikeThrough',
+        'indent',
+        'lineHeight',
+        'foreColor',
+        'backColor',
+        'list',
+        'todo',
+        'justify',
+        'quote',
+        'image',
+        'table',
+        'code',
+        'splitLine'
+    ];
+    editor.config.showFullScreen = false;
+    editor.config.zIndex = 1
+    editor.create();
+
+    let editorContent = editor.txt.html();
+    function save() {
+        setTimeout("save()", "{{ span_time }}");
+        if (editor.txt.html() == editorContent) {
+            return;
+        }
+        editorContent = editor.txt.html();
+        fetch("/rest/api/v1/memo", {
+            method: "POST",
+            body: JSON.stringify({ 'memoID': "{{memo_id}}", 'content': editorContent }),
+            headers: new Headers({
+                "Content-Type": "application/json",
+            })
+        })
+            .then((res) => res.json())
+            .catch((error) => console.error("Error:", error))
+            .then((response) => {
+                if (!response.success) {
+                    mdui.snackbar(response.message)
+                }
+            })
+    }
+    editor.fullScreen();
+    save();
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "template_base.html" %}
+
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/mdui.min.css" />
+<script src="/static/js/mdui.min.js"></script>
+{% endblock %}
+{% block body %}
+
+<div class="mdui-dialog" id="memoDialog">
+    <div class="mdui-dialog-title">欢迎使用SyncMemo</div>
+    <div class="mdui-dialog-content">
+        <div class="mdui-textfield">
+            <label class="mdui-textfield-label">输入您的便签ID 或 点击确认使用系统给予的便签ID</label>
+            <input id="memoID" class="mdui-textfield-input" type="text" value="{{verify_code}}" />
+        </div>
+    </div>
+    <div class="mdui-dialog-actions">
+        <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple">使用帮助</button></a>
+        <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>确认</button>
+    </div>
+</div>
+<script>
+    const inst = new mdui.Dialog('#memoDialog', {
+        'history': false,
+        'modal': true
+    });
+    function confirmClick() {
+        let memoID = document.getElementById('memoID').value
+        window.location.href = '/' + memoID
+    }
+
+    window.onload = function () {
+        inst.open();
+        let memoIDInput = document.getElementById('memoID');
+        let textValue = memoIDInput.value;
+        memoIDInput.focus();
+        memoIDInput.value = "";
+        memoIDInput.value = textValue
+        let dialog = document.getElementById('memoDialog');
+        dialog.addEventListener('confirm.mdui.dialog', confirmClick);
+        memoIDInput.onkeypress = function (event) {
+            if (event.which == 13) {
+                confirmClick()
+            }
+        }
+    }
+</script>
+{% endblock %}
