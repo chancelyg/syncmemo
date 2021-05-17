@@ -5,8 +5,5 @@ MEMO_MAX_SIZE = 5
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
-# 存储便签ID的本地历史长度
+# 浏览器存储便签ID的长度
 LOCAL_STORE_LENGTH = 10
-
-[content]
-TIP_HTML=<blockquote><p><span style="color: rgb(77, 128, 191); font-size: small;">Hi，您可以在另外一个设备访问本站，输入&nbsp;<b>%s&nbsp;</b>即可查看或编辑同一个便签内容（编辑后在另外一个网页需刷新以便修改生效）</span></p></blockquote><hr/><p><br/></p

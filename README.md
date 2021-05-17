@@ -2,29 +2,30 @@
 
 # 1. SyncMemo
 
-一个支持多设备同步文本/图片内容的开源便签Web服务
+一个支持跨平台同步文本/图片的开源便签程序，基于Python的Flask框架开发
 
-- 参考效果（也可直接使用）：[https://memo.chancel.ltd](https://memo.chancel.ltd)
+* Demo：[https://memo.chancel.ltd](https://memo.chancel.ltd)
+* 使用说明：[https://memo.chancel.ltd/help](https://memo.chancel.ltd/help)
 
 如何使用？
 * 访问本站时会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签
 * 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容
 
-如有大批量使用要求，建议自行部署至服务器
+如有团队使用需求，建议自行部署至服务器
 
 # 2. SyncMemo部署
 
 ## 2.1. 环境依赖
 
-Python版本要求>3.5，依赖以下第三方库
+Python版本要求>3.5，安装依赖的第三方库
 
 ``` shell
 pip3 install -r requirements.txt
 ```
 
-## 2.2. 快速部署
+## 2.2. 快速部署（方法一）
 
-首先修改（创建）/opt/syncMemo//src/flaskr/conf/app.conf文件，文件作用如下
+首先修改（创建）/srv/syncMemo/src/flaskr/conf/app.conf文件，文件作用如下
 
 ``` ini
 [general]
@@ -34,15 +35,17 @@ MEMO_MAX_SIZE = 5
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
+# 浏览器存储便签ID的长度
+LOCAL_STORE_LENGTH = 10
 ```
 
 然后运行以下命令可快速运行程序
 
 ``` shell
-python3 /mnt/sda/Codes/dev/syncMemo/src/main.py -p 10923 --host 0.0.0.0
+python3 /srv/syncMemo/main.py -p 10923 --host 0.0.0.0
 ```
 
-## 2.3. uWSGI/Nginx/Supervisor部署
+## 2.3. uWSGI/Nginx/Supervisor部署(方法二)
 
 ### 2.3.1. uWSGI部署
 建议采用uwsgi部署，部署环境参考如下
@@ -193,8 +196,9 @@ pip3 install -r requirements.txt
 # 4. 感谢
 
 项目技术依赖
-* 编辑器 - [wangeditor](https://www.wangeditor.com/)
-* Web框架 - [Flask](https://github.com/pallets/flask)
-* MDUI框架 - [Mdui](https://www.mdui.org)
+* [wangeditor - Typescript 开发的 Web 富文本编辑器， 轻量、简洁、易用、开源免费](https://www.wangeditor.com/)
+* [Flask - Flask is a lightweight WSGI web application framework](https://github.com/pallets/flask)
+* [Mdui - MDUI 漂亮、轻量且好用，它能让你更轻松地开发 Material Design 网页应用](https://www.mdui.org)
+* [Vuejs - The Progressive JavaScript Framework](https://vuejs.org/)
 
-感谢以上这些优秀的开源项目
+项目基于以上的开源项目，感谢！
