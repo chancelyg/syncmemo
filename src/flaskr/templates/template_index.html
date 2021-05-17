@@ -1,49 +1,54 @@
-{% extends "template_base.html" %}
-
-
-{% block head %}
+{% extends "template_base.html" %} {% block head %}
 <link rel="stylesheet" href="/static/css/mdui.min.css" />
 <script src="/static/js/mdui.min.js"></script>
-{% endblock %}
-{% block body %}
-
-<div class="mdui-dialog" id="memoDialog">
+<script src="/static/js/vue.min.js"></script>
+{% endblock %} {% block body %}
+<div id="app">
+  <div class="mdui-dialog" id="memoDialog">
     <div class="mdui-dialog-title">欢迎使用SyncMemo</div>
     <div class="mdui-dialog-content">
-        <div class="mdui-textfield">
-            <label class="mdui-textfield-label">输入您的便签ID 或 点击确认使用系统给予的便签ID</label>
-            <input id="memoID" class="mdui-textfield-input" type="text" value="{{verify_code}}" />
-        </div>
+      <div class="mdui-textfield">
+        <label class="mdui-textfield-label">便签ID</label>
+        <input ref="memoID" class="mdui-textfield-input" type="text" v-model="memoID" />
+        <p><small>本地历史便签ID([[memoList.length]])</small></p>
+        <p></p>
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-m-r-1 mdui-m-t-1" v-for="item in memoList"
+          :key="item" @click="updateMemoID(item)">[[item]]</button>
+      </div>
     </div>
     <div class="mdui-dialog-actions">
-        <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple">使用帮助</button></a>
-        <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>确认</button>
+      <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple">使用帮助</button></a>
+      <button class="mdui-btn mdui-ripple" @click="confirmClick">确认</button>
     </div>
+  </div>
 </div>
 <script>
-    const inst = new mdui.Dialog('#memoDialog', {
-        'history': false,
-        'modal': true
-    });
-    function confirmClick() {
-        let memoID = document.getElementById('memoID').value
-        window.location.href = '/' + memoID
+  var app = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#app',
+    data: {
+      instDialog: null,
+      memoID: "{{verify_code}}",
+      memoList: JSON.parse(localStorage.getItem("memoList"))
+    },
+    methods: {
+      confirmClick: function () {
+        window.location.href = "/" + this.memoID;
+      },
+      updateMemoID: function (text) {
+        window.location.href = "/" + text;
+      }
+    },
+    mounted: function () {
+      this.instDialog = new mdui.Dialog("#memoDialog", {
+        history: false,
+        modal: true,
+      })
+      this.instDialog.open()
+      this.$refs.memoID.focus()
     }
+  })
 
-    window.onload = function () {
-        inst.open();
-        let memoIDInput = document.getElementById('memoID');
-        let textValue = memoIDInput.value;
-        memoIDInput.focus();
-        memoIDInput.value = "";
-        memoIDInput.value = textValue
-        let dialog = document.getElementById('memoDialog');
-        dialog.addEventListener('confirm.mdui.dialog', confirmClick);
-        memoIDInput.onkeypress = function (event) {
-            if (event.which == 13) {
-                confirmClick()
-            }
-        }
-    }
+
 </script>
 {% endblock %}

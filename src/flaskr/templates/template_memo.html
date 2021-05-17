@@ -64,5 +64,14 @@
     }
     editor.fullScreen();
     save();
+    var memoList = JSON.parse(localStorage.getItem("memoList"))
+    if (memoList == null) {
+        memoList = Array()
+    }
+    if(memoList.indexOf("{{memo_id}}") == -1){
+        memoList.splice(0, 0, "{{memo_id}}");
+        memoList.length = parseInt("{{localStoreLength}}")
+        localStorage.setItem("memoList", JSON.stringify(memoList));
+    }
 </script>
 {% endblock %}

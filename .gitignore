@@ -11,3 +11,4 @@ logs/
 .python-version
 .env
 memo/
+conf/app.conf

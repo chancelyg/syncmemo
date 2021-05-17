@@ -57,7 +57,7 @@ def memo_id(memo_id: str):
                 f.write(init_str)
             app.logger.info('%s便签创建' % memo_path)
     with open(memo_path, 'r', encoding='utf8') as f:
-        return render_template('template_memo.html', memo_id=memo_id, span_time=configparser['general']['SAVE_SPANTIME'],memo_content=f.read())
+        return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['general']['LOCAL_STORE_LENGTH'],span_time=configparser['general']['SAVE_SPANTIME'],memo_content=f.read())
 
 
 @app.route('/rest/api/v1/memo', methods=['POST'])
