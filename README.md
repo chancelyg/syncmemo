@@ -1,5 +1,3 @@
-项目效果参考：[https://memo.chancel.ltd](https://memo.chancel.ltd)
-
 # 1. SyncMemo
 
 一个支持跨平台同步文本/图片的开源便签程序，基于Python的Flask框架开发
@@ -50,9 +48,9 @@ python3 /srv/syncMemo/main.py -p 10923 --host 0.0.0.0
 ### 2.3.1. uWSGI部署
 建议采用uwsgi部署，部署环境参考如下
 
-* 程序目录：/opt/syncMemo/
+* 程序目录：/srv/SyncMemo/
 
-首先修改（创建）/opt/syncMemo//src/flaskr/conf/app.conf文件，文件作用如下
+首先修改（创建）/srv/SyncMemo/src/flaskr/conf/app.conf文件，文件作用如下
 
 ``` ini
 [general]
@@ -62,6 +60,8 @@ MEMO_MAX_SIZE = 5
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
+# 浏览器存储便签ID的长度
+LOCAL_STORE_LENGTH = 10
 ```
 
 然后安装uwsgi
@@ -70,7 +70,7 @@ MEMO_ID_LENGTH = 4
 pip install uWSGI
 ```
 
-创建/opt/syncMemo/uwsgi配置文件
+创建/srv/SyncMemo/uwsgi配置文件
 
 ``` ini
 [uwsgi]
@@ -92,21 +92,21 @@ die-on-term = true
 uwsgi --ini /srv/SyncMemo/uwsgi.ini
 ```
 
-如输出没有error说明uWSGI部署成功
+如输出没有异常则说明uWSGI部署成功
 
 ### 2.3.2. Nginx配置
 
-uWSGI部分采用了SOCK文件的部署方式，Nginx的配置文件参考如下
+uWSGI部分采用了SOCK文件的部署方式，则Nginx的配置文件参考如下
 
 ``` conf
 server {
     listen 443 ssl;
-    server_name memo.chancel.ltd; #填写绑定证书的域名
+    server_name memo.chancel.ltd; 
     ssl_certificate ../1_memo.chancel.ltd_bundle.crt;
     ssl_certificate_key ../2_memo.chancel.ltd.key;
     ssl_session_timeout 5m;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #按照这个协议配置
-    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;#按照这个套件配置
+    ssl_protocols TLSv1.1 TLSv1.2;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
     ssl_prefer_server_ciphers on;
     location / {
                 include uwsgi_params;
@@ -116,7 +116,7 @@ server {
                 uwsgi_param    HTTP_X_FORWARDED_FOR $remote_addr;
                 proxy_redirect http:// https://;
                 uwsgi_pass_request_headers on;
-                uwsgi_pass unix:/opt/syncMemo/uwsgi.sock;
+                uwsgi_pass unix:/srv/SyncMemo/uwsgi.sock;
     }
 }
 server{
@@ -135,24 +135,22 @@ supervisor配置文件参考如下
 
 ``` ini
 [program:memo]
-# directory=/opt/blog/src/
-command=/home/chancel/.local/bin/uwsgi --ini /opt/syncMemo/uwsgi.ini
+command=/home/chancel/.local/bin/uwsgi --ini /srv/SyncMemo/uwsgi.ini
 autostart=true
 autorestart=true
 startsecs=10
-stdout_logfile=/var/log/supervisor/memo_stdout.log
+stdout_logfile=/var/log/supervisor/SyncMemo_stdout.log
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=10
 stdout_capture_maxbytes=1MB
-stderr_logfile=/var/log/supervisor/memo_stderr.log
+stderr_logfile=/var/log/supervisor/SyncMemo_stderr.log
 stderr_logfile_maxbytes=10MB
 stderr_logfile_backups=10
 stderr_capture_maxbytes=1MB
 user = apps
-# environment = HOME="/home/git", USER="git"
 ```
 
-# 3. SyncMemo开发
+# 3. SyncMemo开发环境
 
 Python版本>3.5，并安装以下依赖
 
