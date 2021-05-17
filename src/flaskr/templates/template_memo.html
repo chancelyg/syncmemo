@@ -68,9 +68,9 @@
     if (memoList == null) {
         memoList = Array()
     }
-    if(memoList.indexOf("{{memo_id}}") == -1){
+    if (memoList.indexOf("{{memo_id}}") == -1) {
         memoList.splice(0, 0, "{{memo_id}}");
-        memoList.length = parseInt("{{localStoreLength}}")
+        memoList.length = memoList.length > 10 ? parseInt("{{localStoreLength}}") : memoList.length
         localStorage.setItem("memoList", JSON.stringify(memoList));
     }
 </script>

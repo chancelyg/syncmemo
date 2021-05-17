@@ -52,7 +52,7 @@ def memo_id(memo_id: str):
         return render_template('template_help.html')
     memo_path = os.path.join('%s/memo/' % root_path, memo_id.upper() + '.html')
     if not os.path.exists(memo_path):
-            init_str = '<blockquote><p><font size="2" style="color: rgb(139, 170, 74);">便签ID -&nbsp;</font><b style=""><font size="3" style="" color="#c24f4a">%s</font></b></p><p><font size="2" color="#8baa4a">在另外一个设备访问本网站，输入相同的便签ID即可查看/编辑同一个便签内容</font></p></blockquote><hr/><p><br/></p>' % memo_id.upper()
+            init_str =  '<blockquote><p><font size="2" style=""><font color="#4d80bf">Hi，您可以在另外一个设备访问本站，输入</font><font color="#c24f4a"> <b style=""> %s </b></font><font color="#4d80bf">即可查看或编辑同一个便签内容（编辑后在另外一个网页需刷新以便修改生效）</font></font></p></blockquote><hr/><p><br/></p>' % memo_id.upper()
             with open(memo_path, 'w', encoding='utf8') as f:
                 f.write(init_str)
             app.logger.info('%s便签创建' % memo_path)
@@ -67,7 +67,7 @@ def memo():
             return api_response(success=False, message='参数不正确')
         memo_path = os.path.join('%s/memo/' % root_path, request.args.get('memoID').upper() + '.html')
         if not os.path.exists(memo_path):
-            init_str = '<blockquote><p><font size="2" style="color: rgb(139, 170, 74);">便签ID -&nbsp;</font><b style=""><font size="3" style="" color="#c24f4a">%s</font></b></p><p><font size="2" color="#8baa4a">在另外一个设备访问本网站，输入相同的便签ID即可查看/编辑同一个便签内容</font></p></blockquote><hr/><p><br/></p>' % request.args.get(
+            init_str =  configparser['content']['TIP_HTML'] % request.args.get(
                 'memoID').upper()
             with open(memo_path, 'w', encoding='utf8') as f:
                 f.write(init_str)
