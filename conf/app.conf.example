@@ -5,3 +5,6 @@ MEMO_MAX_SIZE = 5
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
+# 存储便签ID的本地历史长度
+LOCAL_STORE_LENGTH = 10
+# 存储便签ID的本地历史长度
