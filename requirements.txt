@@ -1,9 +1,14 @@
+autopep8==1.5.7
 click==7.1.2
 configparser==5.0.2
 Flask==1.1.2
 itsdangerous==1.1.0
 Jinja2==2.11.3
 MarkupSafe==1.1.1
+Pillow==8.3.1
+pycodestyle==2.7.0
 PyYAML==5.4.1
+qrcode==7.2
+toml==0.10.2
 Werkzeug==1.0.1
 yapf==0.31.0

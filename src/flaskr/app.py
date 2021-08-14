@@ -1,12 +1,12 @@
-from flask import Flask, request, render_template, redirect, url_for, jsonify, g
-from .utils import build_verify_code, api_response
+from flask import Flask, request, render_template
+from .utils import build_verify_code, api_response, build_qrcode
 from configparser import ConfigParser
-from logging import config
 from logging.handlers import RotatingFileHandler
 import sys
 import os
-import yaml
 import logging
+
+TIP_TEXT = '<blockquote> <p style="text-align:left;"> <font size="2">Hi，您可以随意编辑此便签内容（自动保存），通过以下2种途径可在其他设备直接访问修改后的便签</font> </p> <font size="2">1. 在其他设备访问本站（[url]）并输入便签ID </font> <font color="#c24f4a"><b> <font size="3">[memoid]</font> </b> </font> <font size="2">即可访问本便签</font> <p> <font size="2">2. 扫描以下二维码直接访问此便签</font> </p> <p><img src="[qrcode]" /><span style="font-size: 1em;"><br /></span></p> <p> <font size="2"> </font> </p> </blockquote> <hr /> <p><br /></p>'
 
 # 读取当前运行目录绝对路径
 root_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
@@ -52,12 +52,21 @@ def memo_id(memo_id: str):
         return render_template('template_help.html')
     memo_path = os.path.join('%s/memo/' % root_path, memo_id.upper() + '.html')
     if not os.path.exists(memo_path):
-            init_str =  '<blockquote><p><font size="2" style=""><font color="#4d80bf">Hi，您可以在另外一个设备访问本站，输入</font><font color="#c24f4a"> <b style=""> %s </b></font><font color="#4d80bf">即可查看或编辑同一个便签内容（编辑后在另外一个网页需刷新以便修改生效）</font></font></p></blockquote><hr/><p><br/></p>' % memo_id.upper()
-            with open(memo_path, 'w', encoding='utf8') as f:
-                f.write(init_str)
-            app.logger.info('%s便签创建' % memo_path)
+        init_str = '<blockquote><p><font size="2" style=""><font color="#4d80bf">Hi，您可以在另外一个设备访问本站，输入</font><font color="#c24f4a"> <b style=""> %s </b></font><font color="#4d80bf">即可查看或编辑同一个便签内容（编辑后在另外一个网页需刷新以便修改生效）</font></font></p></blockquote><hr/><p><br/></p>' % memo_id.upper(
+        )
+        qrcode_base64 = 'data:image/png;base64,%s' % build_qrcode(content=request.base_url)
+        init_str = TIP_TEXT.replace('[url]', request.host_url)
+        init_str = init_str.replace('[memoid]', memo_id)
+        init_str = init_str.replace('[qrcode]', qrcode_base64)
+        with open(memo_path, 'w', encoding='utf8') as f:
+            f.write(init_str)
+        app.logger.info('%s便签创建' % memo_path)
     with open(memo_path, 'r', encoding='utf8') as f:
-        return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['general']['LOCAL_STORE_LENGTH'],span_time=configparser['general']['SAVE_SPANTIME'],memo_content=f.read())
+        return render_template('template_memo.html',
+                               memo_id=memo_id,
+                               localStoreLength=configparser['general']['LOCAL_STORE_LENGTH'],
+                               span_time=configparser['general']['SAVE_SPANTIME'],
+                               memo_content=f.read())
 
 
 @app.route('/rest/api/v1/memo', methods=['POST'])
@@ -67,8 +76,7 @@ def memo():
             return api_response(success=False, message='参数不正确')
         memo_path = os.path.join('%s/memo/' % root_path, request.args.get('memoID').upper() + '.html')
         if not os.path.exists(memo_path):
-            init_str =  configparser['content']['TIP_HTML'] % request.args.get(
-                'memoID').upper()
+            init_str = configparser['content']['TIP_HTML'] % request.args.get('memoID').upper()
             with open(memo_path, 'w', encoding='utf8') as f:
                 f.write(init_str)
             app.logger.info('%s便签创建' % memo_path)
