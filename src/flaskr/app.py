@@ -61,14 +61,15 @@ if os.path.exists(old_version_memo_path):
     app.logger.info('检测到旧版本的MEMO便签文件%d个' % len(os.listdir(old_version_memo_path)))
     for item in os.listdir(old_version_memo_path):
         try:
-            file_name = os.path.splitext(os.path.split(item)[1])[0] 
-            file_path = os.path.join(old_version_memo_path,item)
-            with open(file_path,'r') as f:
-                app_cache.set(file_name,f.read())
+            file_name = os.path.splitext(os.path.split(item)[1])[0]
+            file_path = os.path.join(old_version_memo_path, item)
+            with open(file_path, 'r') as f:
+                app_cache.set(file_name, f.read(), timeout=timeout)
             os.remove(file_path)
             app.logger.info('%s已写入缓存中，文件已删除' % file_name)
         except Exception:
             app.logger.exception('%s便签读取异常！')
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -88,7 +89,7 @@ def memo_id(memo_id: str):
     if memo_id == 'help':
         app.logger.debug('HELP页面被读取')
         return render_template('template_help.html')
-    if not app_cache.get(memo_id):
+    if not app_cache.get(memo_id.upper()):
         init_str = '<blockquote><p><font size="2" style=""><font color="#4d80bf">Hi，您可以在另外一个设备访问本站，输入</font><font color="#c24f4a"> <b style=""> %s </b></font><font color="#4d80bf">即可查看或编辑同一个便签内容（编辑后在另外一个网页需刷新以便修改生效）</font></font></p></blockquote><hr/><p><br/></p>' % memo_id.upper(
         )
         qrcode_base64 = 'data:image/png;base64,%s' % build_qrcode(content=request.base_url)
@@ -97,7 +98,7 @@ def memo_id(memo_id: str):
         init_str = init_str.replace('[qrcode]', qrcode_base64)
         app_cache.set(memo_id, init_str, timeout=timeout)
     app.logger.info('便签（%s）已创建' % memo_id)
-    return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], memo_content=app_cache.get(memo_id))
+    return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], memo_content=app_cache.get(memo_id.upper()))
 
 
 @app.route('/rest/api/v1/memo', methods=['POST'])
