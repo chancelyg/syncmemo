@@ -12,3 +12,4 @@ logs/
 .env
 memo/
 conf/app.conf
+running.log
