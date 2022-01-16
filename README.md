@@ -2,26 +2,26 @@
 
 一个支持跨平台同步文本/图片的开源便签程序，基于Python的Flask框架开发
 
-* Demo：[https://memo.chancel.ltd](https://memo.chancel.ltd)
-* 使用说明：[https://memo.chancel.ltd/help](https://memo.chancel.ltd/help)
+* Demo：[https://memo.chancel.me](https://memo.chancel.me)
+* 使用说明：[https://memo.chancel.me/help](https://memo.chancel.ltd/me)
 
-如何使用？
-* 访问本站时会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签
-* 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容
+使用方法
+1. 访问本站时会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签
+2. 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容
 
-如有团队使用需求，建议自行部署至服务器
+支持配置文件自定义便签长度、大小、存储时间等
 
 # 2. SyncMemo部署
 
 ## 2.1. 环境依赖
 
-Python版本要求>3.5，安装依赖的第三方库
+Python版本要求>3.5，需安装依赖的第三方库
 
 ``` shell
 pip3 install -r requirements.txt
 ```
 
-## 2.2. 快速部署（方法一）
+## 2.2. Python运行
 
 首先修改（创建）/srv/syncMemo/src/flaskr/conf/app.conf文件，文件作用如下
 
@@ -40,13 +40,40 @@ LOCAL_STORE_LENGTH = 10
 然后运行以下命令可快速运行程序
 
 ``` shell
-python3 /srv/syncMemo/main.py -p 10923 --host 0.0.0.0
+python3 /srv/syncMemo/main.py --port 7900
 ```
 
-## 2.3. uWSGI/Nginx/Supervisor部署(方法二)
+访问 http://127.0.0.1:7900 即可看到便签首页
 
-### 2.3.1. uWSGI部署
-建议采用uwsgi部署，部署环境参考如下
+## 2.3. Docker运行
+仓库根目录下有Dockerfile文件，使用Docker Build生成镜像后可运行容器，具体步骤如下
+
+生成镜像
+```bash
+docker build -t chancel/syncmemo:latest . --no-cache
+```
+
+查看镜像
+```bash
+docker images
+
+# 输出如下
+REPOSITORY         TAG                IMAGE ID       CREATED         SIZE
+chancel/syncmemo   latest              697ff7567b79   5 days ago      758MB
+...
+```
+
+运行镜像
+```bash
+docker run -d --name syncmemo -p 7900:7900 syncmemo:latest
+```
+
+访问 http://127.0.0.1:7900 即可看到便签首页
+
+## 2.4. uWSGI+Supervisor部署
+
+### 2.4.1. uWSGI部署
+采用uwsgi部署，部署环境参考如下
 
 * 程序目录：/srv/SyncMemo/
 
@@ -94,40 +121,7 @@ uwsgi --ini /srv/SyncMemo/uwsgi.ini
 
 如输出没有异常则说明uWSGI部署成功
 
-### 2.3.2. Nginx配置
-
-uWSGI部分采用了SOCK文件的部署方式，则Nginx的配置文件参考如下
-
-``` conf
-server {
-    listen 443 ssl;
-    server_name memo.chancel.ltd; 
-    ssl_certificate ../1_memo.chancel.ltd_bundle.crt;
-    ssl_certificate_key ../2_memo.chancel.ltd.key;
-    ssl_session_timeout 5m;
-    ssl_protocols TLSv1.1 TLSv1.2;
-    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
-    ssl_prefer_server_ciphers on;
-    location / {
-                include uwsgi_params;
-                uwsgi_param    Host             $host;
-                uwsgi_param    X-Real-IP        $remote_addr;
-                uwsgi_param    X-Forwarded-For  $proxy_add_x_forwarded_for;
-                uwsgi_param    HTTP_X_FORWARDED_FOR $remote_addr;
-                proxy_redirect http:// https://;
-                uwsgi_pass_request_headers on;
-                uwsgi_pass unix:/srv/SyncMemo/uwsgi.sock;
-    }
-}
-server{
-    listen 80;
-    server_name memo.chancel.ltd;
-    return 301 https://memo.chancel.ltd$request_uri;
-}
-
-```
-
-### 2.3.3. Supervisor配置
+### 2.4.2. Supervisor配置
 
 uWSGI运行可使用 **nohup** 运行，也可以使用 **supervisor** 配置为daemon程序
 
@@ -149,6 +143,30 @@ stderr_logfile_backups=10
 stderr_capture_maxbytes=1MB
 user = apps
 ```
+
+### 2.4.3. Nginx配置
+
+uWSGI部分采用了SOCK文件的部署方式，无法通过端口直接访问，Nginx的配置文件参考如下
+
+``` conf
+server {
+    listen 7900;
+    server_name memo.chancel.me; 
+    location / {
+                include uwsgi_params;
+                uwsgi_param    Host             $host;
+                uwsgi_param    X-Real-IP        $remote_addr;
+                uwsgi_param    X-Forwarded-For  $proxy_add_x_forwarded_for;
+                uwsgi_param    HTTP_X_FORWARDED_FOR $remote_addr;
+                proxy_redirect http:// https://;
+                uwsgi_pass_request_headers on;
+                uwsgi_pass unix:/srv/SyncMemo/uwsgi.sock;
+    }
+}
+
+```
+
+访问 http://127.0.0.1:7900 即可看到便签首页
 
 # 3. SyncMemo开发环境
 
