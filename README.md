@@ -3,7 +3,7 @@
 一个支持跨平台同步文本/图片的开源便签程序，基于Python的Flask框架开发
 
 * Demo：[https://memo.chancel.me](https://memo.chancel.me)
-* 使用说明：[https://memo.chancel.me/help](https://memo.chancel.ltd/me)
+* 使用说明：[https://memo.chancel.me/help](https://memo.chancel.me/help)
 
 使用方法
 1. 访问本站时会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签
@@ -13,17 +13,15 @@
 
 # 2. SyncMemo部署
 
-## 2.1. 环境依赖
 
+## 2.1. Python运行（方法一）
 Python版本要求>3.5，需安装依赖的第三方库
 
 ``` shell
 pip3 install -r requirements.txt
 ```
 
-## 2.2. Python运行
-
-首先修改（创建）/srv/syncMemo/src/flaskr/conf/app.conf文件，文件作用如下
+然后修改或创建/srv/syncMemo/src/flaskr/conf/app.conf文件，文件作用如下
 
 ``` ini
 [general]
@@ -45,7 +43,7 @@ python3 /srv/syncMemo/main.py --port 7900
 
 访问 http://127.0.0.1:7900 即可看到便签首页
 
-## 2.3. Docker运行
+## 2.2. Docker运行（方法二）
 仓库根目录下有Dockerfile文件，使用Docker Build生成镜像后可运行容器，具体步骤如下
 
 生成镜像
@@ -59,7 +57,7 @@ docker images
 
 # 输出如下
 REPOSITORY         TAG                IMAGE ID       CREATED         SIZE
-chancel/syncmemo   latest              697ff7567b79   5 days ago      758MB
+chancel/syncmemo   latest             697ff7567b79   5 days ago      325MB
 ...
 ```
 
@@ -68,11 +66,21 @@ chancel/syncmemo   latest              697ff7567b79   5 days ago      758MB
 docker run -d --name syncmemo -p 7900:7900 syncmemo:latest
 ```
 
+查看容器的运行情况
+```bash
+sudo docker container ls
+
+# 输出
+CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+1f8504b20688   syncmemo:latest   "/usr/local/python3.…"   29 minutes ago   Up 29 minutes   0.0.0.0:7900->7900/tcp, :::7900->7900/tcp     syncmemo
+...
+```
+
 访问 http://127.0.0.1:7900 即可看到便签首页
 
-## 2.4. uWSGI+Supervisor部署
+## 2.3. uWSGI+Supervisor部署（方法三）
 
-### 2.4.1. uWSGI部署
+### 2.3.1. uWSGI部署
 采用uwsgi部署，部署环境参考如下
 
 * 程序目录：/srv/SyncMemo/
@@ -121,7 +129,7 @@ uwsgi --ini /srv/SyncMemo/uwsgi.ini
 
 如输出没有异常则说明uWSGI部署成功
 
-### 2.4.2. Supervisor配置
+### 2.3.2. Supervisor配置
 
 uWSGI运行可使用 **nohup** 运行，也可以使用 **supervisor** 配置为daemon程序
 
@@ -144,7 +152,7 @@ stderr_capture_maxbytes=1MB
 user = apps
 ```
 
-### 2.4.3. Nginx配置
+### 2.3.3. Nginx配置
 
 uWSGI部分采用了SOCK文件的部署方式，无法通过端口直接访问，Nginx的配置文件参考如下
 
