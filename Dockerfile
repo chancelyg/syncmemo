@@ -1,6 +1,5 @@
 # Compile python3.9.1
 FROM ubuntu:18.04 AS compile-python  
-MAINTAINER Your Name "ycs1026@vip.qq.com"
 WORKDIR /app
 RUN apt-get update && \
 apt-get install -y git libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev zlib1g-dev make gcc
