@@ -4,12 +4,13 @@ from .utils import build_verify_code, api_response, build_qrcode
 from configparser import ConfigParser
 from logging.handlers import RotatingFileHandler
 from flask_caching import Cache
+from flask_compress import Compress
 import sys
 import os
 import logging
 import argparse
 
-CONST_VERSION = 'V1.2.0'
+CONST_VERSION = 'V1.2.1'
 CONST_ARGS_CACHE_NAME = 'CONST_ARGS_CACHE_NAME'
 
 parser = argparse.ArgumentParser(description='Syncmemo for argparse')
@@ -20,6 +21,7 @@ TIP_TEXT = '<blockquote> <p style="text-align:left;"> <font size="2">Hi，您可
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
+Compress(app)
 
 configparser = ConfigParser()
 if not os.path.exists(args.config):

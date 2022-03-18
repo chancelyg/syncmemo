@@ -1,6 +1,8 @@
+Brotli==1.0.9
 click==8.0.3
 Flask==2.0.2
 Flask-Caching==1.10.1
+Flask-Compress==1.11
 importlib-metadata==4.10.0
 itsdangerous==2.0.1
 Jinja2==3.0.3
