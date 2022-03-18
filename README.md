@@ -14,31 +14,50 @@
 # 2. SyncMemo部署
 
 
-## 2.1. Python运行（方法一）
-Python版本要求>3.5，需安装依赖的第三方库
+## 2.1. 使用Python运行（方法一）
+克隆仓库，并切换到仓库路径下
+```bash
+git clone https://github.com/chancelyg/syncmemo.git
+cd syncmemo
+```
+
+Python版本要求>3，需安装依赖的第三方库
 
 ``` shell
 pip3 install -r requirements.txt
 ```
 
-然后修改或创建/srv/syncMemo/src/flaskr/conf/app.conf文件，文件作用如下
+然后创建conf/app.conf文件，文件内容如下
 
 ``` ini
+cat conf/app.conf
+
 [general]
+HOST = 0.0.0.0
+PORT = 7900
+
+[memo]
 # 允许便签最大大小
 MEMO_MAX_SIZE = 5
 # 便签保存间隔
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
-# 浏览器存储便签ID的长度
 LOCAL_STORE_LENGTH = 10
+
+[log]
+PATH = running.log
+LEVEL = DEBUG
+
+[store]
+PATH = data/cache
+TIMEOUT_DAY = 14
 ```
 
 然后运行以下命令可快速运行程序
 
 ``` shell
-python3 /srv/syncMemo/main.py --port 7900
+python3 src/main.py -c conf/app.conf
 ```
 
 访问 http://127.0.0.1:7900 即可看到便签首页
@@ -81,40 +100,63 @@ CONTAINER ID   IMAGE             COMMAND                  CREATED          STATU
 ## 2.3. uWSGI+Supervisor部署（方法三）
 
 ### 2.3.1. uWSGI部署
-采用uwsgi部署，部署环境参考如下
+克隆仓库，并切换到仓库路径下
+```bash
+git clone https://github.com/chancelyg/syncmemo.git
+cd syncmemo
+```
 
-* 程序目录：/srv/SyncMemo/
+Python版本要求>3，需安装依赖的第三方库
 
-首先修改（创建）/srv/SyncMemo/src/flaskr/conf/app.conf文件，文件作用如下
+``` shell
+pip3 install -r requirements.txt
+```
+
+然后创建conf/app.conf文件，文件内容如下
 
 ``` ini
+cat conf/app.conf
+
 [general]
+HOST = 0.0.0.0
+PORT = 7900
+
+[memo]
 # 允许便签最大大小
 MEMO_MAX_SIZE = 5
 # 便签保存间隔
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
-# 浏览器存储便签ID的长度
 LOCAL_STORE_LENGTH = 10
+
+[log]
+PATH = running.log
+LEVEL = DEBUG
+
+[store]
+PATH = data/cache
+TIMEOUT_DAY = 14
 ```
 
-然后安装uwsgi
+使用pip额外安装uwsgi
 
 ``` Shell
 pip install uWSGI
 ```
 
-创建/srv/SyncMemo/uwsgi配置文件
+创建uwsgi配置文件
 
 ``` ini
+cat uwsgi.ini
+
 [uwsgi]
 module = main:app
 master = true
 processes = 2
 
-chdir = /srv/SyncMemo/src/
-socket = /srv/SyncMemo/uwsgi.sock
+chdir = src/
+socket = uwsgi.sock
 chmod-socket = 660
 vacuum = true
 
@@ -124,7 +166,7 @@ die-on-term = true
 运行uwsgi程序
 
 ``` 
-uwsgi --ini /srv/SyncMemo/uwsgi.ini
+uwsgi --iniuwsgi.ini
 ```
 
 如输出没有异常则说明uWSGI部署成功
@@ -137,15 +179,15 @@ supervisor配置文件参考如下
 
 ``` ini
 [program:memo]
-command=/home/chancel/.local/bin/uwsgi --ini /srv/SyncMemo/uwsgi.ini
+command=/home/chancel/.local/bin/uwsgi --ini /srv/syncmemo/uwsgi.ini
 autostart=true
 autorestart=true
 startsecs=10
-stdout_logfile=/var/log/supervisor/SyncMemo_stdout.log
+stdout_logfile=/var/log/supervisor/syncmemo_stdout.log
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=10
 stdout_capture_maxbytes=1MB
-stderr_logfile=/var/log/supervisor/SyncMemo_stderr.log
+stderr_logfile=/var/log/supervisor/syncmemo_stderr.log
 stderr_logfile_maxbytes=10MB
 stderr_logfile_backups=10
 stderr_capture_maxbytes=1MB
@@ -168,7 +210,7 @@ server {
                 uwsgi_param    HTTP_X_FORWARDED_FOR $remote_addr;
                 proxy_redirect http:// https://;
                 uwsgi_pass_request_headers on;
-                uwsgi_pass unix:/srv/SyncMemo/uwsgi.sock;
+                uwsgi_pass unix:/srv/syncmemo/uwsgi.sock;
     }
 }
 
@@ -178,7 +220,7 @@ server {
 
 # 3. SyncMemo开发环境
 
-Python版本>3.5，并安装以下依赖
+Python版本>3，并安装以下依赖
 
 ``` Shell
 pip3 install -r requirements.txt
