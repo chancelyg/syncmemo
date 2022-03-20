@@ -1,5 +1,5 @@
 from types import MethodType
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, g, jsonify, request, render_template
 from .utils import build_verify_code, api_response, build_qrcode
 from configparser import ConfigParser
 from logging.handlers import RotatingFileHandler
@@ -16,8 +16,6 @@ CONST_ARGS_CACHE_NAME = 'CONST_ARGS_CACHE_NAME'
 parser = argparse.ArgumentParser(description='Syncmemo for argparse')
 parser.add_argument('--config', '-c', help='配置文件路径', default='config.ini')
 args = parser.parse_args()
-
-TIP_TEXT = '<blockquote> <p style="text-align:left;"> <font size="2">Hi，您可以随意编辑此便签内容（自动保存），通过以下2种途径可在其他设备直接访问修改后的便签</font> </p> <font size="2">1. 在其他设备访问本站（[url]）并输入便签ID </font> <font color="#c24f4a"><b> <font size="3">[memoid]</font> </b> </font> <font size="2">即可访问本便签</font> <p> <font size="2">2. 扫描以下二维码直接访问此便签</font> </p> <p><img src="[qrcode]" /><span style="font-size: 1em;"><br /></span></p> <p> <font size="2"> </font> </p> </blockquote> <hr /> <p><br /></p>'
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -43,6 +41,7 @@ app.logger.info('读取配置文件成功->%s' % args.config)
 
 def running(self):
     self.run(host=configparser['general']['HOST'], port=int(configparser['general']['PORT']))
+    self.debug = configparser['general']['debug'] == '1'
 
 
 app.running = MethodType(running, app)
@@ -92,15 +91,10 @@ def memo_id(memo_id: str):
         app.logger.debug('HELP页面被读取')
         return render_template('template_help.html')
     if not app_cache.get(memo_id.upper()):
-        init_str = '<blockquote><p><font size="2" style=""><font color="#4d80bf">Hi，您可以在另外一个设备访问本站，输入</font><font color="#c24f4a"> <b style=""> %s </b></font><font color="#4d80bf">即可查看或编辑同一个便签内容（编辑后在另外一个网页需刷新以便修改生效）</font></font></p></blockquote><hr/><p><br/></p>' % memo_id.upper(
-        )
-        qrcode_base64 = 'data:image/png;base64,%s' % build_qrcode(content=request.base_url)
-        init_str = TIP_TEXT.replace('[url]', request.host_url)
-        init_str = init_str.replace('[memoid]', memo_id)
-        init_str = init_str.replace('[qrcode]', qrcode_base64)
-        app_cache.set(memo_id, init_str, timeout=timeout)
+        app_cache.set(memo_id, '', timeout=timeout)
+    qrcode_base64 = 'data:image/png;base64,%s' % build_qrcode(content=request.base_url)
     app.logger.info('便签（%s）已创建' % memo_id)
-    return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], memo_content=app_cache.get(memo_id.upper()))
+    return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=app_cache.get(memo_id.upper()))
 
 
 @app.route('/rest/api/v1/memo', methods=['POST'])
@@ -121,8 +115,8 @@ def manifest():
     manifest_dict['start_url'] = '.'
     manifest_dict['prefer_related_applications'] = True
     manifest_dict['icons'] = [{"sizes": "192x192", "src": "/static/img/favicon.webp", "type": "image/webp"}, {"sizes": "512x512", "src": "/static/img/favicon.webp", "type": "image/webp"}]
-    manifest_dict['name'] = '同步便签'
-    manifest_dict['short_name'] = '同步便签'
+    manifest_dict['name'] = configparser['general']['SITE_NAME']
+    manifest_dict['short_name'] = configparser['general']['SITE_NAME']
     manifest_dict['theme_color'] = 'teal'
     manifest_dict['background_color'] = '#ffffff'
     manifest_dict['display'] = 'standalone'
@@ -132,3 +126,12 @@ def manifest():
 @app.route('/sw.js', methods=['GET'])
 def swjs():
     return app.send_static_file('js/sw.js')
+
+
+@app.before_request
+def before_request():
+    g.site_name = configparser['general']['SITE_NAME']
+    g.site_url = configparser['general']['SITE_URL']
+    g.memo_max_size = configparser['memo']['MEMO_MAX_SIZE']
+    g.timeout_day = configparser['store']['TIMEOUT_DAY']
+    g.version = CONST_VERSION

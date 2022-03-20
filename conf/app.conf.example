@@ -1,21 +1,23 @@
 [general]
-HOST = 0.0.0.0
+HOST = 127.0.0.1
 PORT = 8220
+DEBUG = 1
+SITE_NAME = syncmemo
+SITE_URL = http://127.0.0.1
 
 [memo]
 # 允许便签最大大小
 MEMO_MAX_SIZE = 5
-# 便签每次保存间隔
+# 便签保存间隔
 SAVE_SPANTIME = 5000
 # 便签ID长度
 MEMO_ID_LENGTH = 4
-# 本地localstore存储便签ID的历史记录长度
 LOCAL_STORE_LENGTH = 10
 
 [log]
 PATH = running.log
-LEVEL = DEBUG
+LEVEL = INFO
 
 [store]
 PATH = data/cache
-TIMEOUT_DAY = 14
+TIMEOUT_DAY = 30

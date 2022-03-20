@@ -7,9 +7,38 @@
 
 
 {% block body %}
+<input id="foo" value="https://github.com/zenorocha/clipboard.js.git">
+
+<button class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index" mdui-dialog="{target: '#helpDialog','history':false}"
+    mdui-tooltip="{content: '使用帮助'}"><i class="mdui-icon material-icons">share</i></button>
+<div class="mdui-dialog custom-z-index" id="helpDialog">
+    <div class="mdui-dialog-title">分享给其他人</div>
+    <div class="mdui-dialog-content">
+        <img src="{{img}}" class="mdui-center" alt="二维码" />
+        <p class="mdui-text-center"><strong>{{request.path.replace('/','')}}</strong></p>
+    </div>
+    <div class="mdui-dialog-actions">
+        <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple" mdui-dialog-confirm>使用帮助</button></a>
+        <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>确认</button>
+    </div>
+</div>
 <div id="wEditor">
     {{memo_content | safe}}
 </div>
+
+<style>
+    .custom-z-index {
+        z-index: 10023;
+    }
+
+    .mdui-tooltip {
+        z-index: 10023;
+    }
+
+    .mdui-overlay {
+        z-index: 10023;
+    }
+</style>
 <script type="text/javascript">
     const E = window.wangEditor;
     const editor = new E("#wEditor");
@@ -21,7 +50,6 @@
         'fontSize',
         'fontName',
         'italic',
-        'underline',
         'strikeThrough',
         'indent',
         'lineHeight',
@@ -37,8 +65,9 @@
         'splitLine'
     ];
     editor.config.showFullScreen = false;
-    editor.config.zIndex = 1
+    editor.config.zIndex = 0
     editor.create();
+    editor.fullScreen()
 
     let editorContent = editor.txt.html();
     function save() {
@@ -62,7 +91,6 @@
                 }
             })
     }
-    editor.fullScreen();
     save();
     var memoList = JSON.parse(localStorage.getItem("memoList"))
     if (memoList == null) {
@@ -72,6 +100,19 @@
         memoList.splice(0, 0, "{{memo_id}}");
         memoList.length = memoList.length > 10 ? parseInt("{{localStoreLength}}") : memoList.length
         localStorage.setItem("memoList", JSON.stringify(memoList));
+    }
+
+    function copy() {
+        const input = document.createElement('input');
+        input.setAttribute('readonly', 'readonly');
+        input.setAttribute('value', '{{request.url}}');
+        document.body.appendChild(input);
+        input.setSelectionRange(0, 9999);
+        if (document.execCommand('copy')) {
+            document.execCommand('copy');
+            console.log('复制成功');
+        }
+        document.body.removeChild(input);
     }
 </script>
 {% endblock %}

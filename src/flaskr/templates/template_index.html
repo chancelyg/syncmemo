@@ -1,11 +1,8 @@
 {% extends "template_base.html" %} {% block head %}
-<link rel="stylesheet" href="/static/css/mdui.min.css" />
-<script src="/static/js/mdui.min.js"></script>
-<script src="/static/js/vue.min.js"></script>
 {% endblock %} {% block body %}
 <div id="app">
   <div class="mdui-dialog" id="memoDialog">
-    <div class="mdui-dialog-title">欢迎使用SyncMemo</div>
+    <div class="mdui-dialog-title">欢迎使用{{g.site_name}}</div>
     <div class="mdui-dialog-content">
       <div class="mdui-textfield">
         <label class="mdui-textfield-label">便签ID</label>
