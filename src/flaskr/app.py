@@ -76,10 +76,10 @@ if os.path.exists(old_version_memo_path):
 @app.route('/', methods=['GET'])
 def index():
     verify_code = build_verify_code(length=int(configparser['memo']['MEMO_ID_LENGTH']), just_uppercase=True)
-    app.logger.debug('验证码生成->%s' % verify_code)
+    app.logger.debug('创建便签ID：%s' % verify_code)
     while True:
         if app_cache.get(verify_code):
-            app.logger.debug('验证码%s已存在缓存中' % verify_code)
+            app.logger.debug('便签ID%s已存在缓存中' % verify_code)
             verify_code = build_verify_code(length=(configparser['memo']['MEMO_ID_LENGTH']), just_uppercase=True)
             continue
         app.logger.info('便签（%s）分配成功' % verify_code)
