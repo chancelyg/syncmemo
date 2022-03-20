@@ -1,5 +1,5 @@
 from types import MethodType
-from flask import Flask, request, render_template
+from flask import Flask, jsonify, request, render_template
 from .utils import build_verify_code, api_response, build_qrcode
 from configparser import ConfigParser
 from logging.handlers import RotatingFileHandler
@@ -113,3 +113,22 @@ def memo():
     app_cache.set(request.json.get('memoID').upper(), content, timeout=timeout)
     app.logger.info('便签（%s）保存成功，内容大小%dKb' % (request.json.get('memoID').upper(), len(content) / 1024))
     return api_response(success=True, message='保存成功')
+
+
+@app.route('/manifest.webmanifest', methods=['GET'])
+def manifest():
+    manifest_dict = {}
+    manifest_dict['start_url'] = '.'
+    manifest_dict['prefer_related_applications'] = True
+    manifest_dict['icons'] = [{"sizes": "192x192", "src": "/static/img/favicon.webp", "type": "image/webp"}, {"sizes": "512x512", "src": "/static/img/favicon.webp", "type": "image/webp"}]
+    manifest_dict['name'] = '同步便签'
+    manifest_dict['short_name'] = '同步便签'
+    manifest_dict['theme_color'] = 'teal'
+    manifest_dict['background_color'] = '#ffffff'
+    manifest_dict['display'] = 'standalone'
+    return jsonify(manifest_dict)
+
+
+@app.route('/sw.js', methods=['GET'])
+def swjs():
+    return app.send_static_file('js/sw.js')
