@@ -2,12 +2,12 @@
 {% endblock %} {% block body %}
 <div id="app">
   <div class="mdui-dialog" id="memoDialog">
-    <div class="mdui-dialog-title">欢迎使用{{g.site_name}}</div>
+    <div class="mdui-dialog-title">创建一个便签</div>
     <div class="mdui-dialog-content">
       <div class="mdui-textfield">
-        <label class="mdui-textfield-label">便签ID</label>
-        <input ref="memoID" class="mdui-textfield-input" type="text" v-model="memoID" v-on:keyup.enter="confirmClick"/>
-        <p v-if="memoList != null"><small>本地历史便签ID([[memoList.length]])</small></p>
+        <label class="mdui-textfield-label">请输入一个便签ID</label>
+        <input ref="memoID" class="mdui-textfield-input" type="text" v-model="memoID" v-on:keyup.enter="confirmClick" />
+        <p v-if="memoList != null"><small>本地历史便签([[memoList.length]])</small></p>
         <button class="mdui-btn mdui-color-theme-accent mdui-ripple mdui-m-r-1 mdui-m-t-1" v-for="item in memoList"
           :key="item" @click="updateMemoID(item)">[[item]]</button>
       </div>
@@ -46,5 +46,8 @@
   })
 
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+  }
 </script>
 {% endblock %}

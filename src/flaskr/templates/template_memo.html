@@ -9,17 +9,18 @@
 {% block body %}
 <input id="foo" value="https://github.com/zenorocha/clipboard.js.git">
 
-<button class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index" mdui-dialog="{target: '#helpDialog','history':false}"
+<button class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index" mdui-dialog="{target: '#helpDialog'}"
     mdui-tooltip="{content: '使用帮助'}"><i class="mdui-icon material-icons">share</i></button>
 <div class="mdui-dialog custom-z-index" id="helpDialog">
-    <div class="mdui-dialog-title">分享给其他人</div>
+    <div class="mdui-dialog-title">分享给其他人（版本{{g.version}})</div>
     <div class="mdui-dialog-content">
         <img src="{{img}}" class="mdui-center" alt="二维码" />
         <p class="mdui-text-center"><strong>{{request.path.replace('/','')}}</strong></p>
     </div>
     <div class="mdui-dialog-actions">
+        
         <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple" mdui-dialog-confirm>使用帮助</button></a>
-        <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>确认</button>
+        <a href="/immutable/{{hex_str}}" target="_blank"><button class="mdui-btn mdui-ripple">生成纯文本页面（不可编辑）</button></a>
     </div>
 </div>
 <div id="wEditor">
@@ -68,6 +69,10 @@
     editor.config.zIndex = 0
     editor.create();
     editor.fullScreen()
+    editor.config.onfocus = function (newHtml) {
+        var inst = new mdui.Dialog('#helpDialog')
+        inst.close()
+    }
 
     let editorContent = editor.txt.html();
     function save() {

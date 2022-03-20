@@ -9,8 +9,9 @@ import sys
 import os
 import logging
 import argparse
+import base64
 
-CONST_VERSION = 'V1.2.1'
+CONST_VERSION = 'V1.2.2'
 CONST_ARGS_CACHE_NAME = 'CONST_ARGS_CACHE_NAME'
 
 parser = argparse.ArgumentParser(description='Syncmemo for argparse')
@@ -93,8 +94,22 @@ def memo_id(memo_id: str):
     if not app_cache.get(memo_id.upper()):
         app_cache.set(memo_id, '', timeout=timeout)
     qrcode_base64 = 'data:image/png;base64,%s' % build_qrcode(content=request.base_url)
+    hex_str = base64.b16encode(memo_id.encode()).decode()
     app.logger.info('便签（%s）已创建' % memo_id)
-    return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=app_cache.get(memo_id.upper()))
+    return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=app_cache.get(memo_id.upper()),hex_str=hex_str)
+
+
+@app.route('/immutable/<hex_str>', methods=['GET'])
+def immutable(hex_str: str):
+    memo_id = None
+    try:
+        memo_id = base64.b16decode(hex_str.encode()).decode('utf8')
+    except Exception:
+        return api_response(success=False, message='不合法的hex_str参数')
+    if not app_cache.get(memo_id.upper()):
+        return api_response(success=False, message='便签不存在')
+    app.logger.info('便签（%s）已创建' % memo_id)
+    return render_template('template_immutable.html', html=app_cache.get(memo_id.upper()))
 
 
 @app.route('/rest/api/v1/memo', methods=['POST'])
