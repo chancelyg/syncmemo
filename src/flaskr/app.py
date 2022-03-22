@@ -123,26 +123,6 @@ def memo():
     app.logger.info('便签（%s）保存成功，内容大小%dKb' % (request.json.get('memoID').upper(), len(content) / 1024))
     return api_response(success=True, message='保存成功')
 
-
-@app.route('/manifest.webmanifest', methods=['GET'])
-def manifest():
-    manifest_dict = {}
-    manifest_dict['start_url'] = '.'
-    manifest_dict['prefer_related_applications'] = True
-    manifest_dict['icons'] = [{"sizes": "192x192", "src": "/static/img/favicon.webp", "type": "image/webp"}, {"sizes": "512x512", "src": "/static/img/favicon.webp", "type": "image/webp"}]
-    manifest_dict['name'] = configparser['general']['SITE_NAME']
-    manifest_dict['short_name'] = configparser['general']['SITE_NAME']
-    manifest_dict['theme_color'] = 'teal'
-    manifest_dict['background_color'] = '#ffffff'
-    manifest_dict['display'] = 'standalone'
-    return jsonify(manifest_dict)
-
-
-@app.route('/sw.js', methods=['GET'])
-def swjs():
-    return app.send_static_file('js/sw.js')
-
-
 @app.before_request
 def before_request():
     g.site_name = configparser['general']['SITE_NAME']
