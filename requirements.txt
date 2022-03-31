@@ -12,7 +12,6 @@ MarkupSafe==2.0.1
 Pillow==9.0.0
 qrcode==7.3.1
 typing_extensions==4.0.1
-uWSGI==2.0.20
 Werkzeug==2.0.2
 yapf==0.32.0
 zipp==3.7.0

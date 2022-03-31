@@ -2,14 +2,21 @@
 
 一个支持跨平台同步文本/图片的开源便签程序，基于Python的Flask框架开发
 
-* Demo：[https://memo.chancel.me](https://memo.chancel.me)
-* 使用说明：[https://memo.chancel.me/help](https://memo.chancel.me/help)
+* 项目Demo：[https://memo.chancel.me](https://memo.chancel.me)
+* 使用帮助：[https://memo.chancel.me/help](https://memo.chancel.me/help)
 
 使用方法
-1. 访问本站时会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，然后点击确认开始编辑便签
-2. 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容
+1. 访问本站时会自动分配一个随机数（类似于ABCD），稍微花几秒钟记住这个ID，点击确认开始编辑便签
+2. 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID，即可获得相同的便签内容
 
-支持配置文件自定义便签长度、大小、存储时间等
+功能
+* 富文本编辑（图片/文字）
+* 二维码分享
+* 纯文本分享
+* 服务端支持配置文件自定义便签长度、大小、存储时间等
+
+项目依赖
+* Python（版本大于3，开发使用版本3.7.2）
 
 # 2. SyncMemo部署
 
@@ -17,17 +24,15 @@
 ## 2.1. 使用Python运行（方法一）
 克隆仓库，并切换到仓库路径下
 ```bash
-git clone https://github.com/chancelyg/syncmemo.git
-cd syncmemo
+git clone https://github.com/chancelyg/syncmemo.git && cd syncmemo
 ```
 
-Python版本要求>3，需安装依赖的第三方库
-
+安装依赖
 ``` shell
 pip3 install -r requirements.txt
 ```
 
-然后创建conf/app.conf文件，文件内容如下
+创建conf/app.conf文件，文件内容可参考conf/app.conf.example
 
 ``` ini
 cat conf/app.conf
@@ -54,7 +59,7 @@ PATH = data/cache
 TIMEOUT_DAY = 14
 ```
 
-然后运行以下命令可快速运行程序
+运行程序
 
 ``` shell
 python3 src/main.py -c conf/app.conf
@@ -63,15 +68,20 @@ python3 src/main.py -c conf/app.conf
 访问 http://127.0.0.1:7900 即可看到便签首页
 
 ## 2.2. Docker运行（方法二）
-仓库根目录下有Dockerfile文件，使用Docker Build生成镜像后可运行容器，具体步骤如下
+仓库根目录下有Dockerfile文件，使用Docker生成镜像后可运行容器，具体步骤如下
 
-复制conf/app.conf.example到仓库目录下，重命名为app.conf，并根据实际情况修改app.conf
+复制conf/app.conf.example到仓库目录下，重命名为app.conf
+
+并根据实际情况修改app.conf，Docker部署需注意以下2个值
+* HOST：必须为0.0.0.0
+* PROT：必须与Docker中的EXPOSE值一致（无特殊要求则默认7900）
+
 ```bash
 cp conf/app.conf.example ./app.conf
 
 [general]
 HOST = 0.0.0.0
-PORT = 7900 # Docker下此值无效
+PORT = 7900 
 
 [memo]
 # 允许便签最大大小
@@ -128,17 +138,15 @@ CONTAINER ID   IMAGE             COMMAND                  CREATED          STATU
 ### 2.3.1. uWSGI部署
 克隆仓库，并切换到仓库路径下
 ```bash
-git clone https://github.com/chancelyg/syncmemo.git
-cd syncmemo
+git clone https://github.com/chancelyg/syncmemo.git && cd syncmemo
 ```
 
-Python版本要求>3，需安装依赖的第三方库
-
+安装依赖
 ``` shell
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt && pip3 install uwsgi
 ```
 
-然后创建conf/app.conf文件，文件内容如下
+创建conf/app.conf文件，文件内容可参考conf/app.conf.example
 
 ``` ini
 cat conf/app.conf
@@ -165,41 +173,21 @@ PATH = data/cache
 TIMEOUT_DAY = 14
 ```
 
-使用pip额外安装uwsgi
-
-``` Shell
-pip install uWSGI
-```
-
-创建uwsgi配置文件
-
-``` ini
-cat uwsgi.ini
-
-[uwsgi]
-module = main:app
-master = true
-processes = 2
-
-chdir = src/
-socket = uwsgi.sock
-chmod-socket = 660
-vacuum = true
-
-die-on-term = true
-```
-
 运行uwsgi程序
 
-``` 
-uwsgi --iniuwsgi.ini
+```bash
+uwsgi -w main:app --socket=0.0.0.0:7900 --protocol=http --chdir='src' --pyargv='-c ../conf/app.conf'
 ```
 
-如输出没有异常则说明uWSGI部署成功
+访问 http://127.0.0.1:7900 即可看到便签首页
 
-### 2.3.2. Supervisor配置
+## 2.4. Deamon与Nginx
 
-uWSGI运行可使用 **nohup** 运行，也可以使用 **supervisor** 配置为daemon程序
+### 2.4.1. Supervisor配置
+
+uWSGI运行可使用 **nohup** 运行，更推荐使用Deamon方式来部署
+
+以下是使用**supervisor**将syncmemo配置为daemon程序
 
 supervisor配置文件参考如下
 
@@ -220,10 +208,26 @@ stderr_capture_maxbytes=1MB
 user = apps
 ```
 
-### 2.3.3. Nginx配置
+### 2.4.2. Nginx配置
 
-uWSGI部分采用了SOCK文件的部署方式，无法通过端口直接访问，Nginx的配置文件参考如下
+uWSGI部分可采用了本地SOCK文件与Nginx通信的的部署方式
 
+新建一个uwsgi.ini文件，内容如下
+```ini
+[uwsgi]
+module = main:app
+master = true
+processes = 1
+pyargv=-c /srv/memo/syncmemo/conf/app.conf
+
+chdir = /srv/memo/syncmemo/src/
+socket = /srv/memo/uwsgi.sock
+chmod-socket = 660
+vacuum = true
+```
+
+
+Nginx的配置文件参考如下
 ``` conf
 server {
     listen 7900;
@@ -242,11 +246,9 @@ server {
 
 ```
 
-访问 http://127.0.0.1:7900 即可看到便签首页
-
 # 3. SyncMemo开发环境
 
-Python版本>3，并安装以下依赖
+Python版本3.7.2，并安装以下依赖
 
 ``` Shell
 pip3 install -r requirements.txt
