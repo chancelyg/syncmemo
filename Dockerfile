@@ -18,4 +18,4 @@ COPY --from=compile-python /usr/local/python3.9.1 /usr/local/python3.9.1
 COPY --from=compile-python /app/syncmemo /app/syncmemo
 COPY app.conf /app/syncmemo/conf/app.conf
 EXPOSE 7900
-CMD ["/usr/local/python3.9.1/bin/python3","/app/syncmemo/src/main.py","--config=/app/syncmemo/conf/app.conf"]
+CMD ["/usr/local/python3.9.1/bin/uwsgi","--socket=0.0.0.0:7900","--protocol=http","--chdir=/app/syncmemo/src","--pyargv='-c ../conf/app.conf'","-w main:app"]

@@ -65,6 +65,32 @@ python3 src/main.py -c conf/app.conf
 ## 2.2. Docker运行（方法二）
 仓库根目录下有Dockerfile文件，使用Docker Build生成镜像后可运行容器，具体步骤如下
 
+复制conf/app.conf.example到仓库目录下，重命名为app.conf，并根据实际情况修改app.conf
+```bash
+cp conf/app.conf.example ./app.conf
+
+[general]
+HOST = 0.0.0.0
+PORT = 7900 # Docker下此值无效
+
+[memo]
+# 允许便签最大大小
+MEMO_MAX_SIZE = 5
+# 便签保存间隔
+SAVE_SPANTIME = 5000
+# 便签ID长度
+MEMO_ID_LENGTH = 4
+LOCAL_STORE_LENGTH = 10
+
+[log]
+PATH = running.log
+LEVEL = DEBUG
+
+[store]
+PATH = data/cache
+TIMEOUT_DAY = 14
+```
+
 生成镜像
 ```bash
 docker build -t chancel/syncmemo:latest . --no-cache

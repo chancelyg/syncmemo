@@ -1,6 +1,6 @@
 [general]
 HOST = 127.0.0.1
-PORT = 8220
+PORT = 7900
 DEBUG = 1
 SITE_NAME = syncmemo
 SITE_URL = http://127.0.0.1
