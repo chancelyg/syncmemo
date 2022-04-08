@@ -1,6 +1,6 @@
 from types import MethodType
 from flask import Flask, g, jsonify, request, render_template
-from .utils import build_verify_code, api_response, build_qrcode
+from .utils import BuildRandomString, APIResponse, BuildContentQRCode
 from configparser import ConfigParser
 from logging.handlers import RotatingFileHandler
 from flask_caching import Cache
@@ -40,12 +40,12 @@ app.logger.addHandler(handler)
 app.logger.info('读取配置文件成功->%s' % args.config)
 
 
-def running(self):
+def Run(self):
     self.run(host=configparser['general']['HOST'], port=int(configparser['general']['PORT']))
     self.debug = configparser['general']['debug'] == '1'
 
 
-app.running = MethodType(running, app)
+app.Run = MethodType(Run, app)
 
 if not os.path.exists(os.path.dirname(configparser['store']['PATH'])):
     app.logger.info('创建缓存目录->%s' % os.path.dirname(configparser['store']['PATH']))
@@ -74,57 +74,57 @@ if os.path.exists(old_version_memo_path):
 
 
 @app.route('/', methods=['GET'])
-def index():
-    verify_code = build_verify_code(length=int(configparser['memo']['MEMO_ID_LENGTH']), just_uppercase=True)
+def GetIndex():
+    verify_code = BuildRandomString(length=int(configparser['memo']['MEMO_ID_LENGTH']))
     app.logger.debug('创建便签ID：%s' % verify_code)
     while True:
         if app_cache.get(verify_code):
             app.logger.debug('便签ID%s已存在缓存中' % verify_code)
-            verify_code = build_verify_code(length=(configparser['memo']['MEMO_ID_LENGTH']), just_uppercase=True)
+            verify_code = BuildRandomString(length=(configparser['memo']['MEMO_ID_LENGTH']))
             continue
         app.logger.info('便签（%s）分配成功' % verify_code)
         return render_template('template_index.html', verify_code=verify_code)
 
 
 @app.route('/<memo_id>', methods=['GET'])
-def memo_id(memo_id: str):
+def GetMemo(memo_id: str):
     if memo_id == 'help':
         app.logger.debug('HELP页面被读取')
         return render_template('template_help.html')
     if not app_cache.get(memo_id.upper()):
         app_cache.set(memo_id, '', timeout=timeout)
-    qrcode_base64 = 'data:image/png;base64,%s' % build_qrcode(content=request.base_url)
+    qrcode_base64 = 'data:image/png;base64,%s' % BuildContentQRCode(content=request.base_url)
     hex_str = base64.b16encode(memo_id.encode()).decode()
     app.logger.info('便签（%s）已创建' % memo_id)
     return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=app_cache.get(memo_id.upper()),hex_str=hex_str)
 
 
 @app.route('/immutable/<hex_str>', methods=['GET'])
-def immutable(hex_str: str):
+def GetImmutable(hex_str: str):
     memo_id = None
     try:
         memo_id = base64.b16decode(hex_str.encode()).decode('utf8')
     except Exception:
-        return api_response(success=False, message='不合法的hex_str参数')
+        return APIResponse(success=False, message='不合法的hex_str参数')
     if not app_cache.get(memo_id.upper()):
-        return api_response(success=False, message='便签不存在')
+        return APIResponse(success=False, message='便签不存在')
     app.logger.info('便签（%s）已创建' % memo_id)
     return render_template('template_immutable.html', html=app_cache.get(memo_id.upper()))
 
 
 @app.route('/rest/api/v1/memo', methods=['POST'])
-def memo():
+def PostMemo():
     content = request.json.get('content')
     size = len(content) / 1024 / 1024
     if size > int(configparser['memo']['MEMO_MAX_SIZE']):
         app.logger.warning('便签（%s）大小超过限制（%dMb）' % (request.json.get('memoID').upper(), size))
-        return api_response(success=False, message='便签内容大小不能超过%sMb，保存失败' % configparser['memo']['MEMO_MAX_SIZE'])
+        return APIResponse(success=False, message='便签内容大小不能超过%sMb，保存失败' % configparser['memo']['MEMO_MAX_SIZE'])
     app_cache.set(request.json.get('memoID').upper(), content, timeout=timeout)
     app.logger.info('便签（%s）保存成功，内容大小%dKb' % (request.json.get('memoID').upper(), len(content) / 1024))
-    return api_response(success=True, message='保存成功')
+    return APIResponse(success=True, message='保存成功')
 
 @app.before_request
-def before_request():
+def BeforeRequest():
     g.site_name = configparser['general']['SITE_NAME']
     g.site_url = configparser['general']['SITE_URL']
     g.memo_max_size = configparser['memo']['MEMO_MAX_SIZE']

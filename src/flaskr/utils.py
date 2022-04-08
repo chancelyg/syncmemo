@@ -1,29 +1,37 @@
 import random
 import qrcode
 import base64
+from random import choice
 from io import BytesIO
 from flask import jsonify
 
 
-def build_verify_code(length: int, just_uppercase: False):
-    verify_code = ""
+def BuildRandomString(length: int):
+    """Build random string
+
+    Args:
+        length (int): string length
+
+    Returns:
+        _type_: str
+    """    
+    verify_code = ''
     while length > 0:
         num = random.randint(0, 9)
-        if just_uppercase:
-            s = str(random.choice([num, chr(random.randint(65, 90))]))
-        if not just_uppercase:
-            s = str(random.choice([num, chr(random.randint(65, 90)), chr(random.randint(97, 122))]))
+        s = str(random.choice([num, chr(random.randint(65, 90))]))
+        if s in ['0','O','I','1']:
+            continue
         verify_code += s
         length -= 1
     return verify_code
 
 
-def api_response(success: bool = True, data: dict = {}, message: str = None):
+def APIResponse(success: bool = True, data: dict = {}, message: str = None):
     """ 返回的API Response 包装"""
     return jsonify({'data': data, 'success': success, 'message': message})
 
 
-def build_qrcode(content: str, box_size: int = 4):
+def BuildContentQRCode(content: str, box_size: int = 4):
     """使用字符串生成二维码
 
     Args:

@@ -2,6 +2,8 @@
 
 一个支持跨平台同步文本/图片的开源便签程序，基于Python的Flask框架开发
 
+![](https://image.chancel.me/2022/04/08/e289570993967.gif)
+
 * 项目Demo：[https://memo.chancel.me](https://memo.chancel.me)
 * 使用帮助：[https://memo.chancel.me/help](https://memo.chancel.me/help)
 
