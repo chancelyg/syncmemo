@@ -27,19 +27,29 @@ def BuildRandomString(length: int):
 
 
 def APIResponse(success: bool = True, data: dict = {}, message: str = None):
-    """ 返回的API Response 包装"""
+    """Http data response
+
+    Args:
+        success (bool, optional): request result. Defaults to True.
+        data (dict, optional): request data. Defaults to {}.
+        message (str, optional): request message. Defaults to None.
+
+    Returns:
+        _type_: str
+    """    
+    
     return jsonify({'data': data, 'success': success, 'message': message})
 
 
 def BuildContentQRCode(content: str, box_size: int = 4):
-    """使用字符串生成二维码
+    """Build qrcode by text
 
     Args:
-        content (str): 字符串
-        box_size (int, optional): 二维码大小. Defaults to 4.
+        content (str): qrcode content
+        box_size (int, optional): box size. Defaults to 4.
 
     Returns:
-        str: 返回base64
+        _type_: bytes
     """
     qr = qrcode.QRCode(box_size=box_size)
     qr.add_data(content)

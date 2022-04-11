@@ -11,11 +11,11 @@ import logging
 import argparse
 import base64
 
-CONST_VERSION = 'V1.2.2'
+CONST_VERSION = 'V1.2.3'
 CONST_ARGS_CACHE_NAME = 'CONST_ARGS_CACHE_NAME'
 
 parser = argparse.ArgumentParser(description='Syncmemo for argparse')
-parser.add_argument('--config', '-c', help='配置文件路径', default='config.ini')
+parser.add_argument('--config', '-c', help='config path', default='config.ini')
 args = parser.parse_args()
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ Compress(app)
 
 configparser = ConfigParser()
 if not os.path.exists(args.config):
-    print("配置文件%s不存在！请检查配置文件" % args.config)
+    print("Error: config file not found!" % args.config)
     sys.exit()
 configparser.read(args.config, encoding='utf-8')
 
@@ -37,7 +37,7 @@ handler.setFormatter(formatter)
 app.logger.setLevel(configparser['log']['LEVEL'])
 app.logger.addHandler(handler)
 
-app.logger.info('读取配置文件成功->%s' % args.config)
+app.logger.info('Read config file success')
 
 
 def Run(self):
@@ -48,19 +48,19 @@ def Run(self):
 app.Run = MethodType(Run, app)
 
 if not os.path.exists(os.path.dirname(configparser['store']['PATH'])):
-    app.logger.info('创建缓存目录->%s' % os.path.dirname(configparser['store']['PATH']))
+    app.logger.info('Cache folder(%s) created' % os.path.dirname(configparser['store']['PATH']))
     os.makedirs(os.path.dirname(configparser['store']['PATH']))
 app_cache = Cache(config={'CACHE_TYPE': 'filesystem', "CACHE_DEFAULT_TIMEOUT": 10, 'CACHE_DIR': configparser['store']['PATH']})
 app_cache.init_app(app)
-app.logger.info('缓存读取成功')
+app.logger.info('Cache load success')
 
 timeout = 60 * 60 * 24 * int(configparser['store']['TIMEOUT_DAY'])
 
-app.logger.info('便签默认有效期：%s天' % configparser['store']['TIMEOUT_DAY'])
+app.logger.info('Memo valid %s days' % configparser['store']['TIMEOUT_DAY'])
 
 old_version_memo_path = os.path.join(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')), 'memo')
 if os.path.exists(old_version_memo_path):
-    app.logger.info('检测到旧版本的MEMO便签文件%d个' % len(os.listdir(old_version_memo_path)))
+    app.logger.info('Old version memo data found')
     for item in os.listdir(old_version_memo_path):
         try:
             file_name = os.path.splitext(os.path.split(item)[1])[0]
@@ -68,47 +68,47 @@ if os.path.exists(old_version_memo_path):
             with open(file_path, 'r') as f:
                 app_cache.set(file_name, f.read(), timeout=timeout)
             os.remove(file_path)
-            app.logger.info('%s已写入缓存中，文件已删除' % file_name)
+            app.logger.info('Update old version data to data cache, filename:%s' % file_name)
         except Exception:
-            app.logger.exception('%s便签读取异常！')
+            app.logger.exception('Read old version data exception')
 
 
 @app.route('/', methods=['GET'])
 def GetIndex():
     verify_code = BuildRandomString(length=int(configparser['memo']['MEMO_ID_LENGTH']))
-    app.logger.debug('创建便签ID：%s' % verify_code)
     while True:
-        if app_cache.get(verify_code):
-            app.logger.debug('便签ID%s已存在缓存中' % verify_code)
-            verify_code = BuildRandomString(length=(configparser['memo']['MEMO_ID_LENGTH']))
-            continue
-        app.logger.info('便签（%s）分配成功' % verify_code)
-        return render_template('template_index.html', verify_code=verify_code)
+        if not app_cache.get(verify_code):
+            break
+        app.logger.debug('Memo(%s) found' % verify_code)
+        verify_code = BuildRandomString(length=(configparser['memo']['MEMO_ID_LENGTH']))
+    app.logger.info('Memo(%s) to be build' % verify_code)
+    return render_template('template_index.html', verify_code=verify_code)
 
 
 @app.route('/<memo_id>', methods=['GET'])
 def GetMemo(memo_id: str):
+    app.logger.info('Memo(%s) to be accessed' % memo_id)
     if memo_id == 'help':
-        app.logger.debug('HELP页面被读取')
         return render_template('template_help.html')
     if not app_cache.get(memo_id.upper()):
+        app.logger.info('Memo(%s) to be created' % memo_id)
         app_cache.set(memo_id, '', timeout=timeout)
     qrcode_base64 = 'data:image/png;base64,%s' % BuildContentQRCode(content=request.base_url)
     hex_str = base64.b16encode(memo_id.encode()).decode()
-    app.logger.info('便签（%s）已创建' % memo_id)
+    app.logger.info('Memo(%s) updated' % memo_id)
     return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=app_cache.get(memo_id.upper()),hex_str=hex_str)
 
 
 @app.route('/immutable/<hex_str>', methods=['GET'])
 def GetImmutable(hex_str: str):
+    app.logger.info('Memo(%s) show immutable page')
     memo_id = None
     try:
         memo_id = base64.b16decode(hex_str.encode()).decode('utf8')
     except Exception:
-        return APIResponse(success=False, message='不合法的hex_str参数')
+        return APIResponse(success=False, message='hex_str args illegal')
     if not app_cache.get(memo_id.upper()):
-        return APIResponse(success=False, message='便签不存在')
-    app.logger.info('便签（%s）已创建' % memo_id)
+        return APIResponse(success=False, message='memo not found')
     return render_template('template_immutable.html', html=app_cache.get(memo_id.upper()))
 
 
@@ -117,11 +117,11 @@ def PostMemo():
     content = request.json.get('content')
     size = len(content) / 1024 / 1024
     if size > int(configparser['memo']['MEMO_MAX_SIZE']):
-        app.logger.warning('便签（%s）大小超过限制（%dMb）' % (request.json.get('memoID').upper(), size))
-        return APIResponse(success=False, message='便签内容大小不能超过%sMb，保存失败' % configparser['memo']['MEMO_MAX_SIZE'])
+        app.logger.warning('Memo(%s) exceed max size(%smb)' % (request.json.get('memoID').upper(), size))
+        return APIResponse(success=False, message='Memo exceed max size(%smb)' % configparser['memo']['MEMO_MAX_SIZE'])
     app_cache.set(request.json.get('memoID').upper(), content, timeout=timeout)
-    app.logger.info('便签（%s）保存成功，内容大小%dKb' % (request.json.get('memoID').upper(), len(content) / 1024))
-    return APIResponse(success=True, message='保存成功')
+    app.logger.info('Memo(%s) save success, size is %s mb' % (request.json.get('memoID').upper(), len(content) / 1024))
+    return APIResponse(success=True, message='save success')
 
 @app.before_request
 def BeforeRequest():

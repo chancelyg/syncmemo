@@ -15,7 +15,7 @@ MEMO_ID_LENGTH = 4
 LOCAL_STORE_LENGTH = 10
 
 [log]
-PATH = running.log
+PATH = logs/running.log
 LEVEL = INFO
 
 [store]
