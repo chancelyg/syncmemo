@@ -53,7 +53,7 @@ MEMO_ID_LENGTH = 4
 LOCAL_STORE_LENGTH = 10
 
 [log]
-PATH = running.log
+PATH = /var/log/memo
 LEVEL = DEBUG
 
 [store]
@@ -95,7 +95,7 @@ MEMO_ID_LENGTH = 4
 LOCAL_STORE_LENGTH = 10
 
 [log]
-PATH = running.log
+PATH = /var/log/memo
 LEVEL = DEBUG
 
 [store]
@@ -167,7 +167,7 @@ MEMO_ID_LENGTH = 4
 LOCAL_STORE_LENGTH = 10
 
 [log]
-PATH = running.log
+PATH = /var/log/memo
 LEVEL = DEBUG
 
 [store]
@@ -178,7 +178,7 @@ TIMEOUT_DAY = 14
 运行uwsgi程序
 
 ```bash
-uwsgi -w main:app --socket=0.0.0.0:7900 --protocol=http --chdir='src' --pyargv='-c ../conf/app.conf'
+uwsgi -w main:create_app() --socket=0.0.0.0:7900 --protocol=http --chdir='src' --pyargv='-c ../conf/app.conf'
 ```
 
 访问 http://127.0.0.1:7900 即可看到便签首页
@@ -217,7 +217,7 @@ uWSGI部分可采用了本地SOCK文件与Nginx通信的的部署方式
 新建一个uwsgi.ini文件，内容如下
 ```ini
 [uwsgi]
-module = main:app
+module = main:create_app()
 master = true
 processes = 1
 pyargv=-c /srv/memo/syncmemo/conf/app.conf
