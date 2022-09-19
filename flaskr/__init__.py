@@ -1,11 +1,12 @@
 
+from configparser import ConfigParser
 from flask import Flask, g, request, render_template
-from flaskr.config import init_config_parser,configparser
 from .utils import BuildRandomString, APIResponse, BuildContentQRCode
 from logging.handlers import RotatingFileHandler
 from flask_compress import Compress
 from flaskr.cache import cache
 import os
+import sys
 import logging
 import base64
 
@@ -13,12 +14,18 @@ import base64
 CONST_VERSION = 'V1.2.3'
 CONST_ARGS_CACHE_NAME = 'CONST_ARGS_CACHE_NAME'
 
+configparser = ConfigParser()
+
+if not os.environ.get('MEMO_CONF') or not os.path.exists(os.environ.get('MEMO_CONF')):
+    print('error: environment lack of "MEMO_CONF" variable')
+    sys.exit()
+configparser.read(os.environ.get('MEMO_CONF'), encoding='utf-8')
+
 
 def create_app(test: bool = False) -> Flask:
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
     Compress(app)
-    init_config_parser()
     _init_logging(app)
     _init_cache(app)
     _init_data(app)
@@ -27,15 +34,11 @@ def create_app(test: bool = False) -> Flask:
 
     
 def _init_logging(app: Flask):
-    # Logger config
-    logs_path = configparser['log']['PATH'] if configparser['log']['PATH'] else os.path.join(os.getcwd(),'logs')
-    if not os.path.exists(os.path.dirname(logs_path)):
-        os.mkdir(os.path.dirname(logs_path))
-    handler = RotatingFileHandler(logs_path, maxBytes=1024000, backupCount=10)
+    handler = RotatingFileHandler('syncmemo.log', maxBytes=1024000, backupCount=10)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(module)s - %(threadName)s - %(message)s")
     handler.setFormatter(formatter)
     app.logger.addHandler(handler)
-    app.logger.setLevel(configparser['log']['LEVEL'])
+    app.logger.setLevel('INFO')
 
 def _init_cache(app:Flask):
     if not os.path.exists(os.path.dirname(configparser['store']['PATH'])):
@@ -90,7 +93,7 @@ def _init_route(app:Flask):
         qrcode_base64 = 'data:image/png;base64,%s' % BuildContentQRCode(content=request.base_url)
         hex_str = base64.b16encode(memo_id.encode()).decode()
         app.logger.info('Memo(%s) updated' % memo_id)
-        return render_template('template_memo.html', memo_id=memo_id, localStoreLength=configparser['memo']['LOCAL_STORE_LENGTH'], span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=cache.get(memo_id.upper()),hex_str=hex_str)
+        return render_template('template_memo.html', memo_id=memo_id, localStoreLength=10, span_time=configparser['memo']['SAVE_SPANTIME'], img=qrcode_base64, memo_content=cache.get(memo_id.upper()),hex_str=hex_str)
 
 
     @app.route('/immutable/<hex_str>', methods=['GET'])

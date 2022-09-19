@@ -19,6 +19,7 @@ def BuildRandomString(length: int):
     while length > 0:
         num = random.randint(0, 9)
         s = str(random.choice([num, chr(random.randint(65, 90))]))
+        # ignore blur letter
         if s in ['0','O','I','1']:
             continue
         verify_code += s

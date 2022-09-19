@@ -1,22 +1,16 @@
 [general]
-HOST = 127.0.0.1
-PORT = 7900
-DEBUG = 1
 SITE_NAME = syncmemo
-SITE_URL = http://127.0.0.1
+SITE_URL = https://memo.chancel.me
 
 [memo]
-# 允许便签最大大小
+# 便签大小限制
 MEMO_MAX_SIZE = 5
-# 便签保存间隔
+# 便签保存间隔(毫秒)
 SAVE_SPANTIME = 5000
-# 便签ID长度
+# 默认便签ID长度
 MEMO_ID_LENGTH = 4
-LOCAL_STORE_LENGTH = 10
-
-[log]
-PATH = logs/running.log
-LEVEL = INFO
+# 用户输入便签最大长度（MB）
+MEMO_ID_MAX_LENGTH = 25
 
 [store]
 PATH = data/cache
