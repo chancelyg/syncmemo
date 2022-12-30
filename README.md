@@ -1,13 +1,13 @@
-替代登录微信来同步文本/图片的开源便签web程序，方便不同设备（PC、Android、IOS）之间同步文字图片信息
+用于多设备同步文本/图片的便签Web服务，方便在PC、Android、IOS之间同步文字图片信息
 
-使用体验： [memo.chancel.me](https://memo.chancel.me)
+Demo使用体验： [memo.chancel.me](https://memo.chancel.me)
 
+使用效果如图
 ![](https://image.chancel.me/2022/04/08/e289570993967.gif)
 
-
 使用方法
-1. 访问本站时会自动分配一个随机数（类似于ABCD），稍微花几秒钟记住这个ID，点击确认开始编辑便签
-2. 编辑便签内容后（支持文字/图片），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID，即可获得相同的便签内容
+1. 访问本站时会自动分配一个随机数（类似于1234），花几秒钟记住这个ID，点击确认接着开始编辑便签
+2. 编辑便签内容后，在任意可以访问互联网的设备上输入本站网址，并输入上一步中记住的ID，即可获得相同的便签内容
 
 功能
 * 富文本编辑（图片/文字）
@@ -19,24 +19,19 @@
 推荐Docker部署，简单方便，源码部署需要一定的Linux基础
 
 ## 1.1. Docker部署(推荐)
-拉取Docker镜像
+克隆本仓库到本地后，使用docker 生成镜像
 ```bash
-sudo docker pull chancelyang/syncmemo:v1.3.0
+sudo docker build -t syncmemo:latest . --no-cache
 ```
 
 运行镜像（端口7900根据需要自行修改）
 ```bash
-docker run -d --name syncmemo -p 7900:7900 chancelyang/syncmemo:v1.3.0
-```
-
-如需修改配置，可进入容器修改`/app/syncmemo.conf`后重启容器
-```bash
-sudo docker exec -i -t [container_id] /bin/sh
+docker run -d --name syncmemo -p 7900:80 syncmemo:latest
 ```
 
 ## 1.2. 源码部署（gunicorn）
 
-源码运行需要安装Python环境，请自行安装，以下部署基于`Python 3.7.2`
+源码运行需要安装Python环境，请自行安装，以下部署基于`Python 3.8.6`
 
 > 安装Python环境参考 [在Linux下手动编译安装指定的Python版本](https://www.chancel.me/notes/52)
 
@@ -55,7 +50,7 @@ pip3 install -r requirements.txt && pip3 install gunicorn
 运行gunicorn程序
 
 ```bash
-gunicorn -w 2 -b 0.0.0.0:7900 --env MEMO_CONF=conf/app.conf 'flaskr:create_app()
+gunicorn -w 1 -b 127.0.0.1:7900 --env MEMO_CONF=conf/app.conf flaskr:"create_app()"
 ```
 
 访问 http://127.0.0.1:7900 即可看到便签首页
@@ -63,7 +58,7 @@ gunicorn -w 2 -b 0.0.0.0:7900 --env MEMO_CONF=conf/app.conf 'flaskr:create_app()
 
 # 2. SyncMemo开发环境
 
-Python版本3.7.2，并安装以下依赖
+Python版本3.8.6，并安装以下依赖
 
 ``` Shell
 pip3 install -r requirements.txt
@@ -82,19 +77,18 @@ pip3 install -r requirements.txt
             "type": "python",
             "request": "launch",
             "module": "flask",
-            "port": 5001,
-            "host": "0.0.0.0",
+            "console": "internalConsole",
+            "python": "/home/chancel/codes/python/SyncMemo/venv/bin/python",
             "env": {
-                "FLASK_APP": "${workspaceRoot}/src/main.py",
+                "FLASK_APP": "${workspaceRoot}/flaskr",
                 "FLASK_ENV": "development",
-                "FLASK_DEBUG": "1"
+                "FLASK_DEBUG": "1",
+                "MEMO_CONF": "${workspaceRoot}/conf/app.conf"
             },
             "args": [
                 "run",
-                "--no-debugger",
-                "--no-reload",
-                "--host=0.0.0.0",
-                "--port=5000"
+                "--host=127.0.0.1",
+                "--port=7900",
             ],
             "jinja": true
         }

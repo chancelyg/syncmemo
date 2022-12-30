@@ -2,7 +2,7 @@
 {% block body %}
 <div class="mdui-typo mdui-container">
     <h1>使用帮助</h1>
-    <p>请记住本站网址 <strong>{{g.site_url}}</strong></p>
+    <p>请记住本站网址 <strong>{{request.host_url}}</strong></p>
     <p>使用步骤
     <p>
     <ol>
@@ -26,7 +26,7 @@
     <h1>使用声明</h1>
     使用者烦请遵守以下规则
     <ol>
-        <li>本站对于所有便签内容不做长时间保存保障（{{g.timeout_day}}天），请勿存储重要资料，本站本质上是提供信息传输而不是信息保存</li>
+        <li>本站对于所有便签内容不做长时间保存保障（{{g.valid_days}}天），请勿存储重要资料，本站本质上是提供信息传输而不是信息保存</li>
         <li>本站未对安全性做过多保障，请勿用于保存帐号/密码等重要资料，如意外泄密或丢失本站均不负责</li>
         <li>单便签最大大小不超过{{g.memo_max_size}}Mb，如有大批量使用请求，可考虑自行部署</li>
         <li>本站程序基于Python+Flask开发，代码是开源的，欢迎Clone/Fork/Star：&nbsp;<a target="_blank"

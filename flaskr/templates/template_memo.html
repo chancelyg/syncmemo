@@ -73,7 +73,7 @@
 
     let editorContent = editor.txt.html();
     function save() {
-        setTimeout("save()", "{{ span_time }}");
+        setTimeout("save()", "5000");
         if (editor.txt.html() == editorContent) {
             return;
         }
