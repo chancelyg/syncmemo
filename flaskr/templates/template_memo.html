@@ -1,120 +1,96 @@
-{% extends "template_base.html" %}
+{% extends "template_base.html" %} {% block head %}
 
+<!-- https://quilljs.com/ -->
 
-{% block head %}
-<script src="/static/js/wangEditor.min.js"></script>
-{% endblock %}
+<!-- Include stylesheet -->
+<link href="/static/css/quill.snow.css" rel="stylesheet" />
+<link href="/static/css/memo.css" rel="stylesheet" />
+<!-- Include the Quill library -->
+<script src="/static/js/quill.min.js"></script>
+{% endblock %} {% block body %}
 
-
-{% block body %}
-<button class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index" mdui-dialog="{target: '#helpDialog'}"
-    mdui-tooltip="{content: '使用帮助'}"><i class="mdui-icon material-icons">share</i></button>
+<button
+    class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index"
+    mdui-dialog="{target: '#helpDialog'}"
+    mdui-tooltip="{content: '使用帮助'}">
+    <i class="mdui-icon material-icons">share</i>
+</button>
 <div class="mdui-dialog custom-z-index" id="helpDialog">
     <div class="mdui-dialog-title">分享给其他人（版本{{g.version}})</div>
     <div class="mdui-dialog-content">
         <img src="{{img}}" class="mdui-center" alt="二维码" />
-        <p class="mdui-text-center"><strong>{{request.path.replace('/','')}}</strong></p>
+        <p class="mdui-text-center">
+            <strong>{{request.path.replace('/','')}}</strong>
+        </p>
     </div>
     <div class="mdui-dialog-actions">
-        <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple" mdui-dialog-confirm>使用帮助</button></a>
-        <a href="/immutable/{{hex_str}}" target="_blank"><button class="mdui-btn mdui-ripple">分享便签（限制编辑）</button></a>
+        <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple"
+                mdui-dialog-confirm>
+                使用帮助
+            </button></a>
+        <a href="/immutable/{{hex_str}}" target="_blank"><button
+                class="mdui-btn mdui-ripple">分享便签（限制编辑）</button></a>
     </div>
 </div>
-<div id="wEditor">
-    {{memo_content | safe}}
+
+<div class="editor-container">
+    <!-- Create the editor container -->
+    <div id="editor" class="mdui-typo">{{memo_content | safe}}</div>
 </div>
 
-<style>
-    .custom-z-index {
-        z-index: 10023;
-    }
+<!-- Initialize Quill editor -->
+<script>
+  var tmpContent = null;
 
-    .mdui-tooltip {
-        z-index: 10023;
-    }
+  var quill = new Quill("#editor", {
+    theme: "snow",
+  });
 
-    .mdui-overlay {
-        z-index: 10023;
-    }
-</style>
-<script type="text/javascript">
-    const E = window.wangEditor;
-    const editor = new E("#wEditor");
-    // 或者 const editor = new E(document.getElementById('div1'))
-    editor.config.uploadImgShowBase64 = true;
-    editor.config.menus = [
-        'head',
-        'bold',
-        'fontSize',
-        'fontName',
-        'italic',
-        'strikeThrough',
-        'indent',
-        'lineHeight',
-        'foreColor',
-        'backColor',
-        'list',
-        'todo',
-        'justify',
-        'quote',
-        'image',
-        'table',
-        'code',
-        'splitLine'
-    ];
-    editor.config.showFullScreen = false;
-    editor.config.zIndex = 0
-    editor.create();
-    editor.fullScreen()
-    editor.config.onfocus = function (newHtml) {
-        var inst = new mdui.Dialog('#helpDialog')
-        inst.close()
-    }
 
-    let editorContent = editor.txt.html();
-    function save() {
-        setTimeout("save()", "5000");
-        if (editor.txt.html() == editorContent) {
-            return;
+  function save() {
+  console.log(quill);
+  if (quill.root.innerHTML == tmpContent) {
+      return;
+    }
+    tmpContent = quill.root.innerHTML;
+    fetch("/rest/api/v1/memo", {
+      method: "POST",
+      body: JSON.stringify({ memoID: "{{memo_id}}", content: tmpContent }),
+      headers: new Headers({
+        "Content-Type": "application/json",
+      }),
+    })
+      .then((res) => res.json())
+      .catch((error) => console.error("Error:", error))
+      .then((response) => {
+        if (!response.success) {
+          mdui.snackbar(response.message);
         }
-        editorContent = editor.txt.html();
-        fetch("/rest/api/v1/memo", {
-            method: "POST",
-            body: JSON.stringify({ 'memoID': "{{memo_id}}", 'content': editorContent }),
-            headers: new Headers({
-                "Content-Type": "application/json",
-            })
-        })
-            .then((res) => res.json())
-            .catch((error) => console.error("Error:", error))
-            .then((response) => {
-                if (!response.success) {
-                    mdui.snackbar(response.message)
-                }
-            })
-    }
-    save();
-    var memoList = JSON.parse(localStorage.getItem("memoList"))
-    if (memoList == null) {
-        memoList = Array()
-    }
-    if (memoList.indexOf("{{memo_id}}") == -1) {
-        memoList.splice(0, 0, "{{memo_id}}");
-        memoList.length = memoList.length > 10 ? parseInt("{{localStoreLength}}") : memoList.length
-        localStorage.setItem("memoList", JSON.stringify(memoList));
-    }
+      });
+  }
 
-    function copy() {
-        const input = document.createElement('input');
-        input.setAttribute('readonly', 'readonly');
-        input.setAttribute('value', '{{request.url}}');
-        document.body.appendChild(input);
-        input.setSelectionRange(0, 9999);
-        if (document.execCommand('copy')) {
-            document.execCommand('copy');
-            console.log('复制成功');
-        }
-        document.body.removeChild(input);
-    }
+  setInterval("save()", 500);
+
+  function copy() {
+    const input = document.createElement("input");
+    input.setAttribute("readonly", "readonly");
+    input.setAttribute("value", "{{request.url}}");
+    document.body.appendChild(input);
+    input.setSelectionRange(0, 9999);
+    navigator.clipboard.writeText(text);
+    document.body.removeChild(input);
+  }
+
+  var memoList = JSON.parse(localStorage.getItem("memoList"));
+  if (memoList == null) {
+    memoList = Array();
+  }
+  if (memoList.indexOf("{{memo_id}}") == -1) {
+    memoList.splice(0, 0, "{{memo_id}}");
+    memoList.length =
+      memoList.length > 10 ? parseInt("{{localStoreLength}}") : memoList.length;
+    localStorage.setItem("memoList", JSON.stringify(memoList));
+  }
 </script>
+
 {% endblock %}

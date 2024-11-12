@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.editor-container {
+    width: calc(100vw); /* Subtract 10px */
+    height: calc(100vh); /* Subtract 40px for margin and 10px extra */
+    z-index: -9999;
+}
+
+.custom-z-index,
+.mdui-tooltip,
+.mdui-overlay {
+    z-index: 10023;
+}
