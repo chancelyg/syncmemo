@@ -3,59 +3,129 @@
 <!-- https://quilljs.com/ -->
 
 <!-- Include stylesheet -->
-<link href="/static/css/quill.snow.css" rel="stylesheet" />
 <link href="/static/css/memo.css" rel="stylesheet" />
 <!-- Include the Quill library -->
+
+
+<link href="/styles.css" rel="stylesheet" />
+<link href="/static/css/quill.snow.css" rel="stylesheet" />
+<script src="/static/js/highlight.min.js"></script>
 <script src="/static/js/quill.min.js"></script>
+<link rel="stylesheet" href="/static/css/atom-one-dark.min.css" />
+<script src="/static/js/katex.min.js"></script>
+<link rel="stylesheet" href="/static/css/katex.min.css" />
+
 {% endblock %} {% block body %}
 
-<button
-    class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index"
-    mdui-dialog="{target: '#helpDialog'}"
-    mdui-tooltip="{content: '使用帮助'}">
-    <i class="mdui-icon material-icons">share</i>
+<button class="mdui-fab mdui-fab-fixed mdui-ripple custom-z-index" mdui-dialog="{target: '#helpDialog'}"
+  mdui-tooltip="{content: '使用帮助'}">
+  <i class="mdui-icon material-icons">share</i>
 </button>
 <div class="mdui-dialog custom-z-index" id="helpDialog">
-    <div class="mdui-dialog-title">分享给其他人（版本{{g.version}})</div>
-    <div class="mdui-dialog-content">
-        <img src="{{img}}" class="mdui-center" alt="二维码" />
-        <p class="mdui-text-center">
-            <strong>{{request.path.replace('/','')}}</strong>
-        </p>
-    </div>
-    <div class="mdui-dialog-actions">
-        <a href="/help" target="_blank"><button class="mdui-btn mdui-ripple"
-                mdui-dialog-confirm>
-                使用帮助
-            </button></a>
-        <a href="/immutable/{{hex_str}}" target="_blank"><button
-                class="mdui-btn mdui-ripple">分享便签（限制编辑）</button></a>
-    </div>
+  <div class="mdui-dialog-title mdui-text-center">分享二维码</div>
+  <div class="mdui-dialog-content">
+    <img src="{{img}}" class="mdui-center" alt="二维码" />
+    <p class="mdui-text-center">
+      <strong>{{request.path.replace('/','')}}</strong>
+    </p>
+  </div>
+  <div class="mdui-dialog-actions">
+    <button class="mdui-btn mdui-ripple" onclick="copy('{{hex_str}}')">复制文档链接</button>
+  </div>
 </div>
 
-<div class="editor-container">
-    <!-- Create the editor container -->
-    <div id="editor" class="mdui-typo">{{memo_content | safe}}</div>
+<div class="container">
+  <div class="mdui-container">
+    <div id="toolbar-container">
+      <span class="ql-formats">
+        <select class="ql-font"></select>
+        <select class="ql-size"></select>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+        <button class="ql-strike"></button>
+      </span>
+      <span class="ql-formats">
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-script" value="sub"></button>
+        <button class="ql-script" value="super"></button>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-header" value="1"></button>
+        <button class="ql-header" value="2"></button>
+        <button class="ql-blockquote"></button>
+        <button class="ql-code-block"></button>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+        <button class="ql-indent" value="-1"></button>
+        <button class="ql-indent" value="+1"></button>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-direction" value="rtl"></button>
+        <select class="ql-align"></select>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-link"></button>
+        <button class="ql-image"></button>
+        <button class="ql-formula"></button>
+      </span>
+      <span class="ql-formats">
+        <button class="ql-clean"></button>
+      </span>
+    </div>
+    <div id="editor">
+      {{memo_content | safe}}
+    </div>
+  </div>
 </div>
+
+<style>
+  .container {
+    padding: 24px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #toolbar-container {
+    border: none;
+    /* 去掉边框 */
+  }
+
+  #editor {
+    border: none;
+    /* 去掉边框 */
+  }
+
+  #helpDialog {
+    width: 320px;
+    height: 360px;
+  }
+</style>
 
 <!-- Initialize Quill editor -->
 <script>
-  var tmpContent = null;
+  var memoContent = "{{memo_content}}";
 
-  var quill = new Quill("#editor", {
-    theme: "snow",
+  const quill = new Quill('#editor', {
+    modules: {
+      syntax: true,
+      toolbar: '#toolbar-container',
+    },
+    placeholder: 'Compose an epic...',
+    theme: 'snow',
   });
 
-
-  function save() {
-  console.log(quill);
-  if (quill.root.innerHTML == tmpContent) {
-      return;
-    }
-    tmpContent = quill.root.innerHTML;
+  quill.on('text-change', (delta, oldDelta, source) => {
     fetch("/rest/api/v1/memo", {
       method: "POST",
-      body: JSON.stringify({ memoID: "{{memo_id}}", content: tmpContent }),
+      body: JSON.stringify({ memoID: "{{memo_id}}", content: quill.root.innerHTML }),
       headers: new Headers({
         "Content-Type": "application/json",
       }),
@@ -67,19 +137,8 @@
           mdui.snackbar(response.message);
         }
       });
-  }
+  });
 
-  setInterval("save()", 500);
-
-  function copy() {
-    const input = document.createElement("input");
-    input.setAttribute("readonly", "readonly");
-    input.setAttribute("value", "{{request.url}}");
-    document.body.appendChild(input);
-    input.setSelectionRange(0, 9999);
-    navigator.clipboard.writeText(text);
-    document.body.removeChild(input);
-  }
 
   var memoList = JSON.parse(localStorage.getItem("memoList"));
   if (memoList == null) {
@@ -90,6 +149,27 @@
     memoList.length =
       memoList.length > 10 ? parseInt("{{localStoreLength}}") : memoList.length;
     localStorage.setItem("memoList", JSON.stringify(memoList));
+  }
+
+  function copy(hexText) {
+    console.log(hexText)
+    const currentDomain = `${window.location.protocol}//${window.location.host}`;
+    const copyText = currentDomain + '/immutable/' + hexText
+    // 使用 Clipboard API 将字符串复制到剪贴板
+    navigator.clipboard.writeText(copyText)
+      .then(() => {
+        // 复制成功后提示用户
+        mdui.snackbar({
+          message: '已复制'
+        });
+      })
+      .catch(err => {
+        // 处理复制失败的情况
+        console.error('复制失败:', err);
+        mdui.snackbar({
+          message: '复制失败'
+        });
+      });
   }
 </script>
 

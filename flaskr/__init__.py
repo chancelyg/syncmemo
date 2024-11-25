@@ -119,4 +119,3 @@ def _init_route(app: Flask):
         g.site_name = configparser['general']['SITE_NAME']
         g.memo_max_size = configparser['memo']['MEMO_MAX_SIZE']
         g.valid_days = configparser['store']['VALID_DAYS']
-        g.version = CONST_VERSION

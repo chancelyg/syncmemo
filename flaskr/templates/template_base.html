@@ -29,17 +29,10 @@
   {% block body %}
   {% endblock %}
 
-
-
   {% if verify_code == "HELP"%}
   <div class="mdui-typo mdui-container">
     {{ help_content|safe}}
   </div>
-  {% endif %}
-  {% if verify_code != "HELP"%}
-
-
-
   {% endif %}
 </body>
 </html>
