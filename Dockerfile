@@ -2,13 +2,12 @@ FROM python:3.8.6-buster
 
 WORKDIR /app
 
-COPY ./ /app
+COPY ./flaskr /app/flaskr
+COPY ./requirements.txt /app/requirements.txt
 
-COPY conf/app.conf.example /app/syncmemo.conf
+RUN pip install --upgrade pip -i https://pypi.doubanio.com/simple && \
+pip install -i https://pypi.doubanio.com/simple -r /app/requirements.txt
 
-RUN pip install --upgrade pip && \
-pip install -r /app/requirements.txt
+ENV CONFIG=/app/config.yaml
 
-ENV MEMO_CONF=/app/syncmemo.conf
-
-CMD ["gunicorn", "--workers=1", "--bind=0.0.0.0:80", "flaskr:create_app()"]
+CMD ["gunicorn", "--workers=1", "--bind=0.0.0.0:80", "flaskr:app"]

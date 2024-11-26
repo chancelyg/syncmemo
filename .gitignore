@@ -144,3 +144,4 @@ data/
 .vscode/
 .python-version
 config.yaml
+cache/

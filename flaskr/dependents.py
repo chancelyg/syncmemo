@@ -1,5 +1,4 @@
 import os
-import logging
 
 from yaml import safe_load
 from diskcache import Cache

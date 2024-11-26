@@ -1,7 +1,5 @@
 system:
-  debug: true
-  cache: data/cache
-  version: "v24.09.29"
+  cache: cache/
 site:
   name: Chancel's Memo
   theme: mdui-theme-primary-pink 
@@ -10,7 +8,7 @@ memo:
   max_size: 5 # Mb
   id_defalt_length: 4
   id_max_length: 12
-  expire: 0 # 0 indicates never expires
+  expire: 0 # the unit is second, set 0 indicates never expires
 
 
   
