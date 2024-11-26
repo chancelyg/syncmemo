@@ -143,3 +143,4 @@ conf/app.conf
 data/
 .vscode/
 .python-version
+config.yaml

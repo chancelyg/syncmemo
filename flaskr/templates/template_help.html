@@ -2,48 +2,32 @@
 {% block body %}
 <div class="mdui-typo mdui-container">
     <h1>使用帮助</h1>
-    <p>请记住本站网址 <strong>{{request.host_url}}</strong></p>
+    <p>你是否经常遇到一些文字图片内容需要向 PC 或者 Pad 传输，但登录微信又显得很笨重麻烦？那么访问本站，输入相同 ID 即可实现传输任意文字图片到其他设备上</p>
     <p>使用步骤
-    <p>
     <ol>
-        <li>访问本站时，会自动分配一个随机数（类似于97ND），请稍微花几秒钟记住这个ID，点击确认开始编辑便签内容</li>
-        <li>编辑便签内容后（支持<strong>文字/图片</strong>），在任意可以访问本站的设备上输入本站网址，并输入上一步中记住的ID,即可获得相同的便签内容</li>
+        <li>访问本站会分配一个随机数，例如 <kbd>1234</kbd> ，点击确认开始编辑内容</li>
+        <li>编辑完成后，在任意设备上访问本站并输入相同ID，即可查看相同的便签内容</li>
     </ol>
-
-    <p>友情提示
-        <p>
-        <ol>
-            <li>点击右下角分享按钮，可展示二维码方便手机等设备直接扫码访问</li>
-            <li>如希望分享出去的内容不被改变，可点击右下角分享，选择生成<strong>纯文本页面用于分享即可</strong></li>
-        </ol>
-    
-
-    <h1>syncmemo有什么用途？</h1>
-    <p>是否偶尔遇到需要手机向公共PC发送一些文字/图片内容？</p>
-    <P>在公共PC上登录微信QQ又不太方便，安装微信QQ等通讯软件就为了发送一些信息不太值得，而且在公共电脑的登录微信/QQ不太安全</P>
-    <p>此时syncmemo就是银弹了，使用手机访问本站并编辑便签内容，在PC上访问本站，并输入相同的便签ID，即可在手机与PC之间共享数据</p>
+    </p>
+    <p>分享提示
+    <ol>
+        <li>点击右下角分享按钮，会生成二维码网址，使用手机扫码访问该便签</li>
+        <li>使用分享功能分享出去的便签内容是不可编辑的，便于展示</li>
+    </ol>
+    </p>
 
     <h1>使用声明</h1>
     使用者烦请遵守以下规则
     <ol>
-        <li>本站对于所有便签内容不做长时间保存保障（{{g.valid_days}}天），请勿存储重要资料，本站本质上是提供信息传输而不是信息保存</li>
-        <li>本站未对安全性做过多保障，请勿用于保存帐号/密码等重要资料，如意外泄密或丢失本站均不负责</li>
-        <li>单便签最大大小不超过{{g.memo_max_size}}Mb，如有大批量使用请求，可考虑自行部署</li>
-        <li>本站程序基于Python+Flask开发，代码是开源的，欢迎Clone/Fork/Star：&nbsp;<a target="_blank"
+        <li>请勿使用本站存储重要资料，，如意外泄密或丢失本站均不负责<</li>
+        <li>便签大小不得超过 {{max_size}}Mb ，如有大的使用请求，请考虑自行部署</li>
+        <li>本站程序基于 Python + Flask 进行开发，代码开源，欢迎提供建议或检查源码：&nbsp;<a target="_blank"
                 href="https://github.com/chancelyg/SyncMemo">https://github.com/chancelyg/SyncMemo</a></li>
     </ol>
 
-    <p>感谢：<a href="https://getnote.cf/" target="_blank">https://getnote.cf/</a>，本站实质上是该网站的复刻板<br></p>
-
+    <p>感谢：<a href="https://getnote.cf/" target="_blank">https://getnote.cf/</a>，本站实质上是该站的复刻<br></p>
 
     <h1>关于</h1>
-    <p>关于本站的更多信息，可以访问&nbsp;<a href="https://www.chancel.me/articles/69" target="_blank">SyncMemo在多个设备之间快速同步便签内容 -
-            Chancel's blog</a>
-    </p>
-    <P><small>作者：Chancel.Yang</small>
-    <p>
-    <P><small><a href="https//:www.chancel.ltd">博客：https//:www.chancel.me</a></small>
-    <p>
-    <p></p>
+    <P>作者：<a href="https://www.chancel.me" target="_blank">Chancel Yang</a> <br>日期：2024-11-25 <br> 版本：{{version}}</p>
 </div>
 {% endblock %}
