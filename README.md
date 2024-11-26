@@ -2,6 +2,8 @@
 
 Demo：[memo.chancel.me](https://memo.chancel.me)
 
+# 1. 使用
+
 使用方法
 1. 访问本站会分配一个随机数，例如 1234 ，点击确认开始编辑内容
 2. 编辑完成后，在任意设备上访问本站并输入相同ID，即可查看相同的便签内容
@@ -12,23 +14,27 @@ Demo：[memo.chancel.me](https://memo.chancel.me)
 * 纯文本分享（不可编辑）
 * 服务端支持配置文件自定义便签长度、大小、存储时间等
 
-# 1. 部署
+# 2. 部署
+
 推荐 Docker 部署
 
-## 1.1. Docker部署(推荐)
+## 2.1. Docker部署(推荐)
 
 克隆本仓库到本地后，使用 docker 生成镜像
 
 ```bash
+git clone https://github.com/chancelyg/syncmemo.git && cd syncmemo
 sudo docker build -t syncmemo:latest . --no-cache
 ```
 
-复制一份配置文件，根据需要自行修改 `./config.yaml` 的内容
+复制一份配置文件，根据需要自行修改 `./config.yaml` 的值
+
 ```bash
-copy .config.yaml config.yaml
+cp .config.yaml config.yaml
 ```
 
 运行镜像
+
 ```bash
 docker run -v ./config.yaml:/app/config.yaml -p 8000:80 syncmemo:latest
 ```
@@ -36,33 +42,37 @@ docker run -v ./config.yaml:/app/config.yaml -p 8000:80 syncmemo:latest
 访问 http://localhost:8000 查看效果
 
 
-## 1.2. 源码部署（gunicorn）
+## 2.2. 源码部署（gunicorn）
 
 源码运行需要安装Python环境，以下部署基于`Python 3.8.6`，请在部署前确认已安装 Python 环境
 
 克隆仓库，并切换到仓库路径下
+
 ```bash
 git clone https://github.com/chancelyg/syncmemo.git && cd syncmemo
 ```
 
 安装依赖
+
 ``` shell
 pip3 install -r requirements.txt -i https://pypi.doubanio.com/simple
 ```
 
-复制一份配置文件，根据需要自行修改 `./config.yaml` 的内容
+复制一份配置文件，根据需要自行修改 `./config.yaml` 的值
+
 ```bash
-copy .config.yaml config.yaml
+cp .config.yaml config.yaml
 ```
 
 运行程序
+
 ```bash
 gunicorn --env CONFIG=config.yaml flaskr:app
 ```
 
 访问 http://localhost:8000 查看效果
 
-# 2. 数据保存
+# 3. 数据保存
 
 数据的保存有效期取决于 `config.yaml` 文件中的 `memo/expire` 值（单位为秒），设该值为 `0` 时，数据将永不过期
 
@@ -74,7 +84,7 @@ gunicorn --env CONFIG=config.yaml flaskr:app
 docker run -v ./config.yaml:/app/config.yaml -v ./cache:/app/cache -p 8000:80 syncmemo:latest
 ```
 
-# 3. SyncMemo开发环境
+# 4. SyncMemo开发环境
 
 Python 版本 3.8.6 ，并安装依赖：
 
@@ -116,7 +126,7 @@ pip3 install -r requirements.txt -i https://pypi.doubanio.com/simple
 
 按下 `F5` 启动项目，并访问 http://127.0.0.1:8000 查看效果
 
-# 4. 感谢
+# 5. 感谢
 
 项目技术依赖来源：
 * [quilljs - Your powerful rich text editor.](https://quilljs.com/)
