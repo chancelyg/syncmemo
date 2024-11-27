@@ -3,7 +3,7 @@ system:
 site:
   name: Chancel's Memo
   theme: mdui-theme-primary-pink 
-  theme-accent: mdui-theme-accent-light-pink
+  theme_accent: mdui-theme-accent-pink
 memo:
   max_size: 5 # Mb
   id_defalt_length: 4
