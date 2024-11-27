@@ -7,13 +7,14 @@
 <!-- Include the Quill library -->
 
 
-<link href="/styles.css" rel="stylesheet" />
-<link href="/static/css/quill.snow.css" rel="stylesheet" />
-<script src="/static/js/highlight.min.js"></script>
-<script src="/static/js/quill.min.js"></script>
-<link rel="stylesheet" href="/static/css/atom-one-dark.min.css" />
-<script src="/static/js/katex.min.js"></script>
-<link rel="stylesheet" href="/static/css/katex.min.css" />
+<link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='css/quill.snow.css') }}" rel="stylesheet" />
+<link href="{{ url_for('static', filename='js/mdui.min.js') }}" rel="stylesheet" />
+<script src="{{ url_for('static', filename='js/highlight.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/quill.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/atom-one-dark.min.css') }}" />
+<script src="{{ url_for('static', filename='js/katex.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/katex.min.css') }}" />
 
 {% endblock %} {% block body %}
 
