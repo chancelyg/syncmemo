@@ -1,3 +1,4 @@
+import logging
 import os
 
 from yaml import safe_load
@@ -58,3 +59,15 @@ class Memo:
         # If not found in both, initialize with empty string in DiskCache
         self.disk_cache.set(key, "", expire=self.expire)
         return ""
+
+
+class Logger(logging.Logger):
+    def __init__(self) -> None:
+        super().__init__(name="syncmemo")
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        stream_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+        self.addHandler(stream_handler)
+
+
+logger = Logger()
