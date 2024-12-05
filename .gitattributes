@@ -1,1 +1,6 @@
-*.html linguist-language=python
+# 指定所有 Python 文件的语言
+*.py linguist-language=Python
+
+*.html linguist-hidden=true
+*.css linguist-hidden=true
+*.js linguist-hidden=true
